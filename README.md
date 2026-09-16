@@ -61,3 +61,12 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 El APK queda en `app/build/outputs/apk/release/app-release.apk`. Los tests unitarios (`CalcTest` y compañía)
 comprueban el motor de cálculo contra los valores exactos de la hoja Excel; `connectedDebugAndroidTest` ejecuta
 en un emulador las pruebas de notificación, widget, fotos, copia ZIP y consulta real del precio de mercado.
+
+## Licencia
+Este proyecto se distribuye bajo la licencia MIT (ver [LICENSE](LICENSE)): puede usarse, modificarse,
+redistribuirse y publicarse (por ejemplo en Google Play) libremente, siempre que se conserve el aviso de copyright.
+
+## Publicación en Google Play
+- Generar un App Bundle con `./gradlew bundleRelease` (Play exige `.aab`, no APK).
+- Firmar con una clave propia (keystore) configurada en `app/build.gradle.kts` o usar Play App Signing; nunca subir la clave al repositorio.
+- La app no envía datos a ningún servidor: solo consulta el precio del combustible (datos abiertos del Ministerio) y el BOE.
