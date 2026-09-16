@@ -10,6 +10,9 @@ apk = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/Segu
 pdf = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/Manual_Seguimiento_Renting.pdf") / 1e6
 fecha = datetime.date.today().strftime("%d/%m/%Y")
 
+# Enlaces del pie solo en la versión de GitHub Pages; la copia local no los lleva
+enlaces = "" if LOCAL else '<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a>'
+
 html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -173,7 +176,7 @@ html = f"""<!DOCTYPE html>
 </main>
 
 <footer>
-  <div class="wrap">Seguimiento Renting · versión 1.2 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a></div>
+  <div class="wrap">Seguimiento Renting · versión 1.2 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.{enlaces}</div>
 </footer>
 
 </body>
