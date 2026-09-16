@@ -54,6 +54,7 @@ object Storage {
             .put("modoProyeccion", p.modoProyeccion.name)
             .put("kmDiaProyeccion", p.kmDiaProyeccion ?: JSONObject.NULL)
             .put("provinciaId", p.provinciaId ?: JSONObject.NULL)
+            .put("combustibleId", p.combustibleId)
             .put("tipoIva", p.tipoIva)
             .put("pctDeduccion", p.pctDeduccion)
         val meas = JSONArray()
@@ -116,6 +117,7 @@ object Storage {
             modoProyeccion = if (pj.has("modoProyeccion")) runCatching { ModoProyeccion.valueOf(pj.getString("modoProyeccion")) }.getOrDefault(ModoProyeccion.Acumulada)
                 else if (pj.isNull("kmDiaProyeccion")) ModoProyeccion.Acumulada else ModoProyeccion.Manual,
             provinciaId = if (pj.isNull("provinciaId")) null else pj.getString("provinciaId").takeIf { it.isNotBlank() },
+            combustibleId = pj.optString("combustibleId", "").takeIf { it.isNotBlank() } ?: FuelPrices.G95,
             tipoIva = pj.optDouble("tipoIva", d.tipoIva),
             pctDeduccion = pj.optDouble("pctDeduccion", d.pctDeduccion),
         )

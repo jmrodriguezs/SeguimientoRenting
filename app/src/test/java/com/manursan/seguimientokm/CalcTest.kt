@@ -268,6 +268,19 @@ class FuelPricesTest {
         val json = """{"Fecha":"13/09/2026","ListaEESSPrecio":[{"PrecioProducto":"1,500"},{"PrecioProducto":"1,700"},{"PrecioProducto":""},{"PrecioProducto":"1,600"}],"ResultadoConsulta":"OK"}"""
         assertEquals(1.6, FuelPrices.media(json), 1e-9)
     }
+
+    @Test fun combustibleConfigurable() {
+        // Por defecto Gasolina 95 E5; los ficheros antiguos sin el campo siguen usando ese valor
+        assertEquals(FuelPrices.G95, ContractParams.vacio().combustibleId)
+        val antiguo = Storage.fromJson("""{"params":{"kmDiaProyeccion":null},"measurements":[],"refuels":[]}""")
+        assertEquals("Gasolina 95 E5", FuelPrices.nombreCombustible(antiguo.params.combustibleId))
+        // Se guarda y se recupera
+        val d = SeedData.create().let { it.copy(params = it.params.copy(combustibleId = "4")) }
+        assertEquals("4", Storage.fromJson(Storage.toJson(d)).params.combustibleId)
+        assertEquals("Gasóleo A", FuelPrices.nombreCombustible("4"))
+        // Solo combustibles de turismo, sin duplicados
+        assertEquals(FuelPrices.COMBUSTIBLES.size, FuelPrices.COMBUSTIBLES.map { it.first }.toSet().size)
+    }
 }
 
 class XlsxExportTest {

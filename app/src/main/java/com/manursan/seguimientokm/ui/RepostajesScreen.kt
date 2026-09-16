@@ -309,7 +309,7 @@ private fun RefuelDialog(
                         } else if (mercadoPrecio != null) {
                             Column {
                                 Text("${Fmt.dec(mercadoPrecio!!, 3)} €/l", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = accentText(Palette.orange))
-                                Text("Gasolina 95 · media en ${FuelPrices.nombreProvincia(vm.data.params.provinciaId)} el ${Fmt.date(fecha)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("${FuelPrices.nombreCombustible(vm.data.params.combustibleId)} · media en ${FuelPrices.nombreProvincia(vm.data.params.provinciaId)} el ${Fmt.date(fecha)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         } else {
                             Text("No se pudo obtener el precio (${mercadoError ?: "sin datos"}). Se guardará sin precio; podrás completarlo después desde el menú.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)

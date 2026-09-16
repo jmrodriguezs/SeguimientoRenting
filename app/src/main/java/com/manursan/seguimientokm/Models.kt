@@ -38,6 +38,8 @@ data class ContractParams(
     val kmDiaProyeccion: Double? = null,
     /** Provincia (código INE de 2 cifras) para el precio medio de mercado; null = toda España. */
     val provinciaId: String? = null,
+    /** Combustible (IDProducto del Ministerio) para el precio medio de mercado. */
+    val combustibleId: String = FuelPrices.G95,
     val tipoIva: Double = 0.21,
     val pctDeduccion: Double = 0.50,
 ) {

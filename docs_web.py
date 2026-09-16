@@ -119,7 +119,7 @@ html = f"""<!DOCTYPE html>
     <div class="card"><h3><i style="background:var(--teal)">📈</i>Proyección</h3><p>Estimación de kilómetros a fin de contrato según el ritmo acumulado, el de los últimos 6 meses o un ritmo manual, con gráfico de evolución.</p></div>
     <div class="card"><h3><i style="background:var(--naranja)">💶</i>Liquidación estimada</h3><p>Abono o cargo previsto por kilómetros no recorridos o de exceso, aplicando los umbrales y recargos de tu contrato, y coste total con IVA.</p></div>
     <div class="card"><h3><i style="background:var(--rosa)">🛣️</i>¿Cuánto puedo conducir?</h3><p>Margen de kilómetros disponibles hasta el fin del contrato y por día para no pagar exceso.</p></div>
-    <div class="card"><h3><i style="background:var(--morado)">⛽</i>Repostajes y consumo</h3><p>Registro de repostajes con litros y precio por litro (manual o precio medio de mercado de Gasolina 95 en tu provincia), consumo en l/100 km.</p></div>
+    <div class="card"><h3><i style="background:var(--morado)">⛽</i>Repostajes y consumo</h3><p>Registro de repostajes con litros y precio por litro (manual o precio medio de mercado del combustible de tu vehículo en tu provincia), consumo en l/100 km.</p></div>
     <div class="card"><h3><i style="background:#0097A7">🧾</i>Otros gastos</h3><p>Peajes, aparcamiento, lavados, neumáticos… se suman al coste real por kilómetro.</p></div>
     <div class="card"><h3><i style="background:#43A047">📄</i>Informe PDF y Excel</h3><p>Informe de estado de una página en PDF para compartir, y exportación a Excel con fórmulas vivas.</p></div>
     <div class="card"><h3><i style="background:#F4511E">🚔</i>Consulta de multas</h3><p>Busca la matrícula en el Tablón Edictal Único del BOE, con revisión semanal automática y aviso si aparece algo.</p></div>
@@ -141,7 +141,7 @@ html = f"""<!DOCTYPE html>
   </ol>
   <div class="nota" style="margin-top:16px">Si Play Protect muestra un aviso, elige <em>Instalar de todos modos</em>. La app no requiere cuenta, no contiene anuncios y solo usa Internet para consultar el precio del combustible y el BOE.</div>
   <div class="req">
-    <span>Android 8.0+</span><span>Versión 1.0</span><span>{apk:.1f} MB</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
+    <span>Android 8.0+</span><span>Versión 1.1</span><span>{apk:.1f} MB</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
   </div>
 </section>
 
@@ -151,7 +151,7 @@ html = f"""<!DOCTYPE html>
   <div class="dl">
     <div class="card">
       <h3><i style="background:var(--amarillo);color:#1F2937">📱</i>Aplicación Android</h3>
-      <p>Fichero de instalación <code>SeguimientoRenting.apk</code> · versión 1.0 · {apk:.1f} MB</p>
+      <p>Fichero de instalación <code>SeguimientoRenting.apk</code> · versión 1.1 · {apk:.1f} MB</p>
       <a class="btn apk" href="SeguimientoRenting.apk" download>Descargar APK</a>
     </div>
     <div class="card">
@@ -166,7 +166,7 @@ html = f"""<!DOCTYPE html>
 </main>
 
 <footer>
-  <div class="wrap">Seguimiento Renting · versión 1.0 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a></div>
+  <div class="wrap">Seguimiento Renting · versión 1.1 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a></div>
 </footer>
 
 </body>

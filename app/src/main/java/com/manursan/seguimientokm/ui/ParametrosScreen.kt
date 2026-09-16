@@ -146,6 +146,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
             modoProyeccion = p.modoProyeccion,
             kmDiaProyeccion = p.kmDiaProyeccion,
             provinciaId = p.provinciaId,
+            combustibleId = p.combustibleId,
             tipoIva = d(iva)!! / 100,
             pctDeduccion = d(deduccion)!! / 100,
         )
@@ -384,7 +385,22 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
 
         // --- Precio de mercado ---
         var provOpen by remember { mutableStateOf(false) }
-        SectionCard(title = "Precio de mercado", subtitle = "Gasolina 95 · datos abiertos del Ministerio de Industria", icon = Icons.Default.LocalGasStation, accent = Palette.teal) {
+        var combOpen by remember { mutableStateOf(false) }
+        SectionCard(title = "Precio de mercado", subtitle = "Datos abiertos del Ministerio de Industria", icon = Icons.Default.LocalGasStation, accent = Palette.teal) {
+            ExposedDropdownMenuBox(expanded = combOpen, onExpandedChange = { combOpen = it }) {
+                OutlinedTextField(
+                    value = FuelPrices.nombreCombustible(p.combustibleId), onValueChange = {}, readOnly = true,
+                    label = { Text("Combustible") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = combOpen) },
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                )
+                DropdownMenu(expanded = combOpen, onDismissRequest = { combOpen = false }, modifier = Modifier.heightIn(max = 360.dp)) {
+                    FuelPrices.COMBUSTIBLES.forEach { (id, nombre) ->
+                        DropdownMenuItem(text = { Text(nombre) }, onClick = { vm.setCombustible(id); combOpen = false })
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
             ExposedDropdownMenuBox(expanded = provOpen, onExpandedChange = { provOpen = it }) {
                 OutlinedTextField(
                     value = FuelPrices.nombreProvincia(p.provinciaId), onValueChange = {}, readOnly = true,
@@ -400,7 +416,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                 }
             }
             Text(
-                "Se usa al elegir \"Precio de mercado\" en un repostaje y en \"Completar precios de mercado\" del menú. Por provincia la consulta es más rápida.",
+                "Elige el combustible de tu vehículo y la provincia donde sueles repostar. Se usan al elegir \"Precio de mercado\" en un repostaje y en \"Completar precios de mercado\" del menú. Por provincia la consulta es más rápida.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

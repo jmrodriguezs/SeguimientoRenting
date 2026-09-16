@@ -243,7 +243,7 @@ object PdfReport {
 
             // ---- Pie ----
             txt(
-                "Generado por Seguimiento Renting · Teóricos = km contratados repartidos linealmente en los días de contrato · Precio de mercado: datos abiertos del Ministerio de Industria (Gasolina 95)",
+                "Generado por Seguimiento Renting · Teóricos = km contratados repartidos linealmente en los días de contrato · Precio de mercado: datos abiertos del Ministerio de Industria (${FuelPrices.nombreCombustible(r.params.combustibleId)})",
                 M, H - M + 10f, 6.5f, color = GRIS,
             )
         }

@@ -90,9 +90,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun deleteRefuel(id: String) =
         update(data.copy(refuels = data.refuels.filterNot { it.id == id }))
 
-    /** Precio medio de mercado (G95) en una fecha, según la provincia configurada. */
+    /** Precio medio de mercado en una fecha, según la provincia y el combustible configurados. */
     suspend fun precioMercado(fecha: LocalDate): Result<Double> =
-        FuelPrices.precioMedio(ctx, fecha, data.params.provinciaId)
+        FuelPrices.precioMedio(ctx, fecha, data.params.provinciaId, data.params.combustibleId)
 
     /** Rellena con el precio de mercado los repostajes que no tienen precio/litro. Devuelve (hechos, fallos). */
     fun completarPreciosMercado(onDone: (Int, Int) -> Unit) {
@@ -167,6 +167,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         update(data.copy(params = data.params.copy(modoProyeccion = modo, kmDiaProyeccion = kmDia)))
 
     fun setProvincia(id: String?) = update(data.copy(params = data.params.copy(provinciaId = id)))
+    fun setCombustible(id: String) = update(data.copy(params = data.params.copy(combustibleId = id)))
 
     // --- Borrado protegido por copia de seguridad ---
     /** Huella de los datos (JSON + fotos) cubiertos por la última copia de seguridad guardada. */

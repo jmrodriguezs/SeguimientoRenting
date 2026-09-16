@@ -118,7 +118,7 @@ class Doc(BaseDocTemplate):
         canv.line(doc.leftMargin, A4[1] - 1.5*cm, A4[0] - doc.rightMargin, A4[1] - 1.5*cm)
         canv.setFont("Arial", 8); canv.setFillColor(GRIS)
         canv.drawString(doc.leftMargin, A4[1] - 1.35*cm, "Seguimiento Renting · Manual de usuario")
-        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión 1.0 · %s" % datetime.date.today().strftime("%d/%m/%Y"))
+        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión 1.1 · %s" % datetime.date.today().strftime("%d/%m/%Y"))
         canv.drawCentredString(A4[0] / 2, 1.2*cm, str(doc.page))
         canv.restoreState()
     def afterFlowable(self, fl):
@@ -142,7 +142,7 @@ story += [Spacer(1, 2.2*cm), P("Seguimiento Renting", "title"), Spacer(1, 0.3*cm
 cover_tbl = Table([[shot("01_resumen_1", 4.4*cm), shot("30_proy_1", 4.4*cm), shot("20_rep_lista", 4.4*cm)]], colWidths=[5.2*cm]*3, hAlign="CENTER")
 cover_tbl.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER")]))
 story += [cover_tbl, Spacer(1, 0.8*cm),
-          Paragraph("Versión 1.0 · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % datetime.date.today().strftime("%B %Y").capitalize(), st["cap"])]
+          Paragraph("Versión 1.1 · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % datetime.date.today().strftime("%B %Y").capitalize(), st["cap"])]
 
 # ---------- Índice ----------
 toc = TableOfContents(); toc.levelStyles = [st["toc1"], st["toc2"]]; toc.dotsMinLevel = 0
@@ -208,8 +208,8 @@ story += [P("Suma la cuota del renting prorrateada hasta la fecha, el combustibl
             "<b>Baja con el uso</b>: la cuota es fija y se reparte entre más kilómetros. La aplicación lo muestra desglosado en renting, combustible y otros.")]
 story += H2("3.5 Consumo y precio de mercado")
 story += [P("Para calcular el consumo (l/100 km) hacen falta litros. Si anotas los litros del tique, se usan directamente. Si no, la aplicación los deduce "
-            "dividiendo el importe entre el <b>precio por litro</b>, que puedes escribir a mano o tomar del <b>precio medio de mercado</b> de la Gasolina 95 "
-            "en esa fecha y provincia (datos abiertos del Ministerio de Industria, con histórico diario).")]
+            "dividiendo el importe entre el <b>precio por litro</b>, que puedes escribir a mano o tomar del <b>precio medio de mercado</b> del combustible "
+            "configurado en esa fecha y provincia (datos abiertos del Ministerio de Industria, con histórico diario).")]
 
 # ---------- 4. Navegación ----------
 story += H1("4. Navegación general")
@@ -273,8 +273,8 @@ story += H2("7.1 Repostajes")
 story += [P("Cada tarjeta muestra fecha, importe, acumulado, litros, precio por litro (indicando si fue manual o de mercado) y coste diario. La cabecera resume el total repostado y el consumo.")]
 story += H2("7.2 Añadir un repostaje")
 story += [bullets(["<b>Fecha</b> e <b>importe</b> en euros. El importe es obligatorio salvo que indiques litros y precio, en cuyo caso se calcula.",
-                   "<b>Precio por litro</b>, con dos modos: <b>Manual</b> (lo escribes del tique) o <b>Mercado</b> (la aplicación consulta el precio medio de la Gasolina 95 en esa fecha "
-                   "y en la provincia configurada; se muestra en pantalla y se actualiza si cambias la fecha). Si no hay conexión, se guarda sin precio y podrás completarlo después.",
+                   "<b>Precio por litro</b>, con dos modos: <b>Manual</b> (lo escribes del tique) o <b>Mercado</b> (la aplicación consulta el precio medio del combustible "
+                   "y la provincia configurados en Ajustes en esa fecha; se muestra en pantalla y se actualiza si cambias la fecha). Si no hay conexión, se guarda sin precio y podrás completarlo después.",
                    "<b>Litros</b> (opcional). Si los dejas en blanco y hay precio, se calculan como importe ÷ precio y se muestra el resultado.",
                    "Nota opcional y <b>Guardar</b>."]),
           note("Si tienes repostajes antiguos sin litros ni precio, usa <b>menú ⋮ → Completar precios de mercado</b>: la aplicación busca el precio medio de cada fecha y lo asigna a todos los que "
@@ -324,7 +324,8 @@ story += H2("9.4 Recordatorios")
 story += [P("<b>Anotar los kilómetros cada mes</b>: notificación el día del mes que elijas (1–28) a las 10:00, con la última medida y el margen diario. "
             "<b>Aviso previo al ajuste anual</b>: notificación 30 días antes de cada aniversario del contrato con la previsión de km. Ambos piden el permiso de notificaciones la primera vez y sobreviven al reinicio del dispositivo.")]
 story += H2("9.5 Precio de mercado")
-story += [P("Provincia que se usa para el precio medio de la Gasolina 95 (o <i>Toda España</i>). Elegir tu provincia hace la consulta más rápida y más representativa de lo que pagas.")]
+story += [P("<b>Combustible</b> de tu vehículo (gasolinas 95 y 98 en todas sus variantes, gasóleo A y Premium, diésel y gasolina renovables, biodiésel, bioetanol, GLP, GNC, GNL e hidrógeno) y <b>provincia</b> donde sueles repostar (o <i>Toda España</i>). Ambos se usan para obtener el precio medio de mercado. Por defecto es Gasolina 95 E5; elegir tu provincia hace la consulta más rápida y más representativa de lo que pagas. Para GNC, GNL e hidrógeno el precio publicado es por kilogramo."),
+          figrow([("45_ajustes_mercado", "Combustible y provincia para el precio de mercado")], w=7*cm)]
 story += H2("9.6 Contrato, cuotas, liquidación e IVA")
 story += [P("Aquí se introducen los parámetros que alimentan todos los cálculos. Se guardan al pulsar <b>Guardar</b>; <b>Descartar cambios</b> vuelve a los valores guardados."),
           table([["Bloque", "Campos"],
@@ -369,7 +370,7 @@ story += [P("Mantén pulsado un hueco de la pantalla de inicio → <i>Widgets</i
 story += H2("11.2 Notificaciones")
 story += [P("Tres tipos, todos opcionales y configurables en Ajustes: recordatorio mensual de anotar los km, aviso previo al ajuste anual y aviso de anuncio nuevo en el BOE. "
             "Al tocarlas se abre la aplicación."),
-          figrow([("70_notificaciones", "Recordatorio mensual y aviso de ajuste anual", (0, 1400))], w=7*cm)]
+          figrow([("70_notificaciones", "Recordatorio mensual y aviso de ajuste anual")], w=7*cm)]
 
 # ---------- 12. FAQ ----------
 story += H1("12. Preguntas frecuentes")

@@ -10,12 +10,25 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * Precio medio de la Gasolina 95 E5 a partir de los datos abiertos del Ministerio de Industria
+ * Precio medio del combustible configurado (Gasolina 95 E5 por defecto) a partir de los datos abiertos del Ministerio de Industria
  * (precios diarios de todas las estaciones de servicio de España, con histórico por fecha).
  */
 object FuelPrices {
     private const val BASE = "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes"
-    private const val PRODUCTO_G95 = "1"
+    const val G95 = "1"
+
+    /** Carburantes de automoción (IDProducto del Ministerio); quedan fuera los de calefacción, agrícolas, marítimos y de aviación. */
+    val COMBUSTIBLES: List<Pair<String, String>> = listOf(
+        "1" to "Gasolina 95 E5", "23" to "Gasolina 95 E10", "20" to "Gasolina 95 E5 Premium",
+        "24" to "Gasolina 95 E25", "25" to "Gasolina 95 E85",
+        "3" to "Gasolina 98 E5", "21" to "Gasolina 98 E10", "28" to "Gasolina renovable",
+        "4" to "Gasóleo A", "5" to "Gasóleo Premium", "27" to "Diésel renovable",
+        "8" to "Biodiésel", "16" to "Bioetanol",
+        "17" to "GLP (Autogas)", "18" to "Gas natural comprimido (GNC)", "19" to "Gas natural licuado (GNL)",
+        "22" to "Hidrógeno",
+    )
+
+    fun nombreCombustible(id: String): String = COMBUSTIBLES.firstOrNull { it.first == id }?.second ?: "Gasolina 95 E5"
     private val FECHA_API: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
     /** Provincias (código INE) para filtrar el precio medio. */
@@ -37,19 +50,19 @@ object FuelPrices {
     private fun cache(context: Context) = context.getSharedPreferences("precios_g95", Context.MODE_PRIVATE)
 
     /** Precio medio €/l en esa fecha (y provincia). Consulta la red si no está en caché. */
-    suspend fun precioMedio(context: Context, fecha: LocalDate, provinciaId: String?): Result<Double> {
-        val key = "${fecha}|${provinciaId ?: "ES"}"
+    suspend fun precioMedio(context: Context, fecha: LocalDate, provinciaId: String?, productoId: String = G95): Result<Double> {
+        val key = if (productoId == G95) "${fecha}|${provinciaId ?: "ES"}" else "${fecha}|${provinciaId ?: "ES"}|$productoId"
         cache(context).getFloat(key, -1f).takeIf { it > 0 }?.let { return Result.success(it.toDouble()) }
         return withContext(Dispatchers.IO) {
             runCatching {
                 val hoy = LocalDate.now()
                 val url = if (fecha.isBefore(hoy)) {
                     val f = fecha.format(FECHA_API)
-                    if (provinciaId != null) "$BASE/EstacionesTerrestresHist/FiltroProvinciaProducto/$f/$provinciaId/$PRODUCTO_G95"
-                    else "$BASE/EstacionesTerrestresHist/FiltroProducto/$f/$PRODUCTO_G95"
+                    if (provinciaId != null) "$BASE/EstacionesTerrestresHist/FiltroProvinciaProducto/$f/$provinciaId/$productoId"
+                    else "$BASE/EstacionesTerrestresHist/FiltroProducto/$f/$productoId"
                 } else {
-                    if (provinciaId != null) "$BASE/EstacionesTerrestres/FiltroProvinciaProducto/$provinciaId/$PRODUCTO_G95"
-                    else "$BASE/EstacionesTerrestres/FiltroProducto/$PRODUCTO_G95"
+                    if (provinciaId != null) "$BASE/EstacionesTerrestres/FiltroProvinciaProducto/$provinciaId/$productoId"
+                    else "$BASE/EstacionesTerrestres/FiltroProducto/$productoId"
                 }
                 val precio = media(descargar(url))
                 // El precio de hoy puede cambiar durante el día: solo se cachean fechas pasadas

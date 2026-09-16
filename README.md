@@ -17,7 +17,7 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
 - **¿Cuánto puedo conducir?**: km/día y km/mes máximos para no pagar exceso (30.000 km) y para conservar el abono (< 27.000 km).
 - **Gráfica** de km reales frente a la recta teórica, con la proyección y los umbrales.
 - **Escenarios de proyección**: media acumulada, ritmo de los últimos 6 meses o valor manual (palanca N22 del Excel).
-- **Litros y precio/litro** en cada repostaje, manual o **precio medio de mercado** (Gasolina 95, datos abiertos del
+- **Litros y precio/litro** en cada repostaje, manual o **precio medio de mercado** (combustible configurable: gasolinas, gasóleos, biocarburantes, GLP, GNC, GNL e hidrógeno; datos abiertos del
   Ministerio de Industria, por fecha y provincia). Consumo en l/100 km y precio medio. "Completar precios de mercado"
   rellena los repostajes antiguos.
 - **Otros gastos** (peajes, parking, lavado, multas, mantenimiento, AdBlue): entran en el coste por km y en el coste de uso hasta hoy.
