@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Seguimiento Renting</string>
+    <string name="widget_desc">Kilómetros actuales, desviación y margen diario</string>
+</resources>
