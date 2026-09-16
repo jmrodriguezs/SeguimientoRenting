@@ -1,5 +1,5 @@
 import json, os, datetime
-imgs = json.load(open("imgs.json"))
+imgs = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs_web_imgs.json")))
 apk = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/SeguimientoRenting.apk") / 1e6
 pdf = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/Manual_Seguimiento_Renting.pdf") / 1e6
 fecha = datetime.date.today().strftime("%d/%m/%Y")
@@ -166,11 +166,11 @@ html = f"""<!DOCTYPE html>
 </main>
 
 <footer>
-  <div class="wrap">Seguimiento Renting · versión 1.0 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.</div>
+  <div class="wrap">Seguimiento Renting · versión 1.0 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a></div>
 </footer>
 
 </body>
 </html>
 """
-open("index.html", "w").write(html)
+open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "index.html"), "w").write(html)
 print("index.html", len(html)//1024, "KB")
