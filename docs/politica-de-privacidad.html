@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de Privacidad · Seguimiento Renting</title>
+<meta name="description" content="Política de Privacidad de la aplicación Seguimiento Renting para Android.">
+<style>
+  :root {
+    --azul:#2962FF; --teal:#00BFA5; --naranja:#FF6D00; --rosa:#E91E63; --morado:#7C4DFF; --amarillo:#FFC857;
+    --texto:#1F2937; --gris:#6B7280; --fondo:#F5F7FB; --tarjeta:#FFFFFF; --linea:#E5E7EB;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --texto:#F3F4F6; --gris:#9CA3AF; --fondo:#0F172A; --tarjeta:#1E293B; --linea:#334155; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--texto); background:var(--fondo); line-height:1.6; }
+  a { color:var(--azul); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 20px; }
+  header { background:linear-gradient(135deg,var(--azul) 0%,#1E88E5 60%,var(--teal) 100%); color:#fff; padding:48px 0 40px; }
+  header h1 { font-size:2.2rem; margin:0 0 8px; }
+  header p.lead { font-size:1.1rem; margin:0; opacity:.95; }
+  .nav-back { display:inline-flex; align-items:center; gap:8px; color:rgba(255,255,255,.9); font-weight:600; margin-bottom:16px; font-size:.95rem; }
+  .nav-back:hover { color:#fff; }
+  main { padding:36px 0 60px; }
+  .card { background:var(--tarjeta); border-radius:16px; padding:28px 32px; border:1px solid var(--linea); box-shadow:0 2px 8px rgba(0,0,0,.04); margin-bottom:24px; }
+  h2 { font-size:1.35rem; margin:0 0 12px; color:var(--azul); display:flex; align-items:center; gap:10px; }
+  h2 span { display:inline-block; width:8px; height:22px; border-radius:4px; background:var(--azul); }
+  p { margin:0 0 12px; }
+  p:last-child { margin-bottom:0; }
+  ul { margin:8px 0 14px 20px; padding:0; }
+  li { margin-bottom:6px; }
+  .badge-destacado { display:inline-block; background:rgba(0,191,165,.15); color:#00796B; font-weight:700; padding:4px 12px; border-radius:999px; font-size:.85rem; margin-bottom:16px; }
+  footer { padding:28px 0 40px; color:var(--gris); font-size:.9rem; text-align:center; border-top:1px solid var(--linea); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="index.html" class="nav-back">← Volver a Seguimiento Renting</a>
+    <h1>Política de Privacidad</h1>
+    <p class="lead">Aplicación Android Seguimiento Renting · Última actualización: Septiembre de 2026</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="badge-destacado">✓ Sin publicidad · Sin registro de usuarios · Datos 100% locales en tu dispositivo</div>
+
+  <div class="card">
+    <h2><span></span>1. Compromiso fundamental de privacidad</h2>
+    <p>La aplicación <strong>Seguimiento Renting</strong> ha sido diseñada bajo el principio de privacidad por diseño (<em>Privacy by Design</em>). <strong>No recopilamos, no almacenamos en servidores propios ni transferimos a terceros ningún dato personal ni de uso de la aplicación.</strong></p>
+    <p>No se requiere la creación de cuenta, ni inicio de sesión, ni dirección de correo electrónico para utilizar la totalidad de las funciones de la aplicación.</p>
+  </div>
+
+  <div class="card">
+    <h2><span></span>2. Datos tratados y almacenamiento local</h2>
+    <p>Todos los datos introducidos en la aplicación se almacenan única y exclusivamente en el almacenamiento privado del dispositivo:</p>
+    <ul>
+      <li><strong>Parámetros del contrato:</strong> Plazo, kilómetros anuales, fecha de inicio y entrega, cuota mensual, precios por exceso y defecto de km, porcentaje de IVA y deducción, contacto de la empresa de renting.</li>
+      <li><strong>Historial de mediciones:</strong> Fecha, kilómetros registrados y fotografía opcional del cuentakilómetros.</li>
+      <li><strong>Repostajes y gastos:</strong> Fecha, litros, precio por litro, importe total, fotografía del tique y otros gastos auxiliares (peajes, aparcamientos, lavados, etc.).</li>
+      <li><strong>Ajustes y preferencias:</strong> Provincia seleccionada para el combustible, configuración de recordatorios locales y tema de apariencia.</li>
+    </ul>
+    <p>Si el usuario desinstala la aplicación, todos estos datos locales se eliminan por completo, salvo que haya generado previamente una copia de seguridad.</p>
+  </div>
+
+  <div class="card">
+    <h2><span></span>3. Permisos del dispositivo y su uso</h2>
+    <p>La aplicación solicita únicamente los permisos indispensables para las funciones solicitadas por el usuario:</p>
+    <ul>
+      <li><strong>Cámara y Selección de Fotos:</strong> Se utiliza exclusivamente si el usuario decide hacer o adjuntar una foto del cuentakilómetros o de un tique de gasolina. Las fotos no salen del dispositivo.</li>
+      <li><strong>Notificaciones (<code>POST_NOTIFICATIONS</code>):</strong> Se utiliza para enviar avisos locales programados por el usuario (recordatorio mensual para anotar el kilometraje y aviso previo al ajuste anual de contrato). No se envían notificaciones promocionales ni push remotas.</li>
+      <li><strong>Acceso a Internet (<code>INTERNET</code>):</strong> Se utiliza exclusivamente para las dos consultas públicas descritas en el punto 4.</li>
+      <li><strong>Inicio finalizado (<code>RECEIVE_BOOT_COMPLETED</code>):</strong> Permite al sistema operativo reprogramar los recordatorios locales fijados por el usuario tras reiniciar el teléfono.</li>
+      <li><strong>Llamadas telefónicas:</strong> Al pulsar el teléfono de contacto de la compañía de renting, la aplicación abre el marcador de llamadas del teléfono (<code>ACTION_DIAL</code>) con el número prefijado para que el usuario confirme la llamada. La aplicación <strong>no</strong> realiza llamadas automáticas ni accede al registro de llamadas.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span></span>4. Reconocimiento óptico de caracteres (OCR) en tiques</h2>
+    <p>La lectura automática de datos en tiques de repostaje (fecha, importe, litros y precio) se procesa en su totalidad en el propio dispositivo mediante la librería <strong>Google ML Kit Text Recognition</strong> empaquetada localmente en la aplicación.</p>
+    <p><strong>Ninguna imagen ni el texto extraído del tique se envía a servidores de Google ni de ningún tercero.</strong> El procesamiento es 100% desconectado (<em>offline</em>).</p>
+  </div>
+
+  <div class="card">
+    <h2><span></span>5. Consultas de red a servicios públicos abiertos</h2>
+    <p>La aplicación realiza únicamente dos tipos de peticiones de red directas a fuentes oficiales y públicas:</p>
+    <ul>
+      <li><strong>Precios de referencia de carburantes:</strong> Consulta anónima al servicio de datos abiertos del Geoportal de hidrocarburos del Ministerio de Industria / MITECO para calcular precios medios por fecha y provincia.</li>
+      <li><strong>Tablón Edictal Único del BOE:</strong> Búsqueda de edictos de notificación de multas de tráfico pendientes en el servicio oficial del Boletín Oficial del Estado (BOE), enviando exclusivamente el texto de la matrícula configurada por el usuario.</li>
+    </ul>
+    <p>Ninguna de estas consultas envía identificadores del dispositivo, identificadores publicitarios ni datos identificativos del usuario.</p>
+  </div>
+
+  <div class="card">
+    <h2><span></span>6. Publicidad, analítica y servicios de terceros</h2>
+    <p>La aplicación:</p>
+    <ul>
+      <li><strong>No contiene publicidad</strong> de ningún tipo.</li>
+      <li><strong>No recopila ni utiliza el ID de publicidad</strong> de Google (Google Advertising ID).</li>
+      <li><strong>No incluye SDKs de rastreo ni plataformas analíticas de terceros</strong> (como Firebase Analytics, Facebook SDK, etc.).</li>
+      <li><strong>No comparte ni vende información</strong> a empresas de publicidad, intermediarios de datos ni terceros.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span></span>7. Copias de seguridad</h2>
+    <p>La aplicación ofrece una función de copia de seguridad manual en un archivo ZIP que incluye la base de datos y las imágenes adjuntas. Este archivo es custodiado íntegramente por el usuario en la ubicación que elija (almacenamiento local, unidad compartida o nube personal).</p>
+    <p>Si el usuario tiene habilitada la copia de seguridad estándar de Android en la nube (Google One / Drive), el sistema operativo realiza una copia cifrada de las preferencias y base de datos locales según las condiciones de la cuenta de Google del usuario.</p>
+  </div>
+
+  <div class="card">
+    <h2><span></span>8. Contacto</h2>
+    <p>Para cualquier duda, consulta o ejercicio de derechos en relación con esta política de privacidad o la aplicación, puedes ponerte en contacto a través de la página del proyecto en GitHub:</p>
+    <p><a href="https://github.com/manursan2026/seguimiento-renting" target="_blank" rel="noopener">https://github.com/manursan2026/seguimiento-renting</a></p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Seguimiento Renting · Aplicación de código abierto distribuida bajo Licencia MIT.<br>
+    <a href="index.html">Página principal</a> · <a href="politica-de-privacidad.html">Política de Privacidad</a>
+  </div>
+</footer>
+
+</body>
+</html>

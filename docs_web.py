@@ -11,7 +11,7 @@ pdf = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/Manu
 fecha = datetime.date.today().strftime("%d/%m/%Y")
 
 # Enlaces del pie solo en la versión de GitHub Pages; la copia local no los lleva
-enlaces = "" if LOCAL else '<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a>'
+enlaces = "" if LOCAL else '<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a> · <a href="politica-de-privacidad.html">Política de Privacidad</a>'
 
 html = f"""<!DOCTYPE html>
 <html lang="es">

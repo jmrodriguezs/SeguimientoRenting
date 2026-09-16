@@ -8,3 +8,8 @@ manual/_emb_*
 manual/_map.json
 docs/SeguimientoRenting.apk
 docs/Manual_Seguimiento_Renting.pdf
+*.jks
+*.keystore
+keystore.properties
+key.properties
+

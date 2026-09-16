@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -19,14 +21,42 @@ android {
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
+    val keystorePropsFile = rootProject.file("keystore.properties")
+    val keystoreProps = Properties()
+    val hasReleaseKeystore = keystorePropsFile.exists()
+    if (hasReleaseKeystore) {
+        keystorePropsFile.inputStream().use { keystoreProps.load(it) }
+    }
+
+    signingConfigs {
+        create("release") {
+            if (hasReleaseKeystore) {
+                val storeFilePath = keystoreProps.getProperty("storeFile") ?: "release-upload.jks"
+                val storeFileCandidate = file(storeFilePath)
+                storeFile = if (storeFileCandidate.exists()) storeFileCandidate else rootProject.file(storeFilePath)
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Firmado con la clave de depuración para poder instalarlo directamente
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

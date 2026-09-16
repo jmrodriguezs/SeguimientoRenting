@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.clickable
@@ -42,7 +41,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.ButtonDefaults
-import androidx.core.content.ContextCompat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.heightIn
@@ -186,22 +184,9 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
 
         val context = LocalContext.current
 
-        // --- Compañía de renting: llamada directa (con permiso) o marcador ---
-        var numeroPendiente by remember { mutableStateOf<String?>(null) }
-        fun marcar(numero: String) {
-            context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${marcable(numero)}")))
-        }
-        fun llamarDirecto(numero: String) {
-            runCatching { context.startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:${marcable(numero)}"))) }
-                .onFailure { marcar(numero) }
-        }
-        val pedirLlamada = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
-            val n = numeroPendiente; numeroPendiente = null
-            if (n != null) { if (ok) llamarDirecto(n) else marcar(n) }
-        }
+        // --- Compañía de renting: llamada mediante el marcador del sistema ---
         fun llamar(numero: String) {
-            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) llamarDirecto(numero)
-            else { numeroPendiente = numero; pedirLlamada.launch(android.Manifest.permission.CALL_PHONE) }
+            context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${marcable(numero)}")))
         }
         val nombreEmpresa = p.empresa.ifBlank { "Compañía de renting" }
         SectionCard(title = nombreEmpresa, subtitle = if (p.empresa.isBlank()) "Datos de contacto de tu compañía de renting" else "Contacto", icon = Icons.Default.Phone, accent = Palette.green) {
