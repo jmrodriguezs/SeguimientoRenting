@@ -22,6 +22,7 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
   rellena los repostajes antiguos.
 - **Otros gastos** (peajes, parking, lavado, multas, mantenimiento, AdBlue): entran en el coste por km y en el coste de uso hasta hoy.
 - **Foto del cuentakilómetros** en cada medición (cámara o galería), reducida a 1600 px.
+- **Foto del tique de repostaje** con lectura automática (OCR de ML Kit en el dispositivo, sin enviar la imagen): rellena fecha, importe, precio/litro y litros para revisarlos antes de guardar.
 - **Recordatorios**: notificación mensual para anotar los km y aviso 30 días antes del ajuste anual.
 - **Próximo ajuste anual**: fecha, km previstos, desviación y si cae dentro de la banda ±10 %.
 - **Widget** de pantalla de inicio con km actuales, desviación y margen diario.
@@ -69,4 +70,4 @@ redistribuirse y publicarse (por ejemplo en Google Play) libremente, siempre que
 ## Publicación en Google Play
 - Generar un App Bundle con `./gradlew bundleRelease` (Play exige `.aab`, no APK).
 - Firmar con una clave propia (keystore) configurada en `app/build.gradle.kts` o usar Play App Signing; nunca subir la clave al repositorio.
-- La app no envía datos a ningún servidor: solo consulta el precio del combustible (datos abiertos del Ministerio) y el BOE.
+- La app no envía datos a ningún servidor: solo consulta el precio del combustible (datos abiertos del Ministerio) y el BOE. La lectura de tiques (ML Kit) se hace en el propio dispositivo.

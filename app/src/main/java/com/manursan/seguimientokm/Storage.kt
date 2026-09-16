@@ -71,6 +71,7 @@ object Storage {
                     .put("litros", it.litros ?: JSONObject.NULL)
                     .put("precioLitro", it.precioLitro ?: JSONObject.NULL)
                     .put("precioMercado", it.precioMercado)
+                    .put("foto", it.foto ?: JSONObject.NULL)
             )
         }
         val exp = JSONArray()
@@ -143,6 +144,7 @@ object Storage {
                 litros = if (o.isNull("litros")) null else o.getDouble("litros"),
                 precioLitro = if (o.isNull("precioLitro")) null else o.getDouble("precioLitro"),
                 precioMercado = o.optBoolean("precioMercado", false),
+                foto = if (o.isNull("foto")) null else o.getString("foto"),
             )
         }
         val exp = root.optJSONArray("expenses") ?: JSONArray()

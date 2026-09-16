@@ -76,19 +76,27 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Importa una foto (cámara o galería) y devuelve su nombre de fichero, o null si falla. */
-    suspend fun importPhoto(uri: Uri): String? = withContext(Dispatchers.IO) { runCatching { Photos.import(ctx, uri) }.getOrNull() }
+    suspend fun importPhoto(uri: Uri, prefijo: String = "km"): String? = withContext(Dispatchers.IO) { runCatching { Photos.import(ctx, uri, prefijo) }.getOrNull() }
+
+    /** Lee el tique de repostaje de una foto ya importada (OCR en el dispositivo). */
+    suspend fun leerTique(foto: String): Result<TicketOcr.Datos> = TicketOcr.leer(ctx, Photos.file(ctx, foto))
 
     // --- Repostajes ---
-    fun addRefuel(fecha: LocalDate, importe: Double, nota: String, litros: Double?, precio: Double?, mercado: Boolean) =
-        update(data.copy(refuels = data.refuels + Refuel(fecha = fecha, importe = importe, nota = nota, litros = litros, precioLitro = precio, precioMercado = mercado)))
+    fun addRefuel(fecha: LocalDate, importe: Double, nota: String, litros: Double?, precio: Double?, mercado: Boolean, foto: String? = null) =
+        update(data.copy(refuels = data.refuels + Refuel(fecha = fecha, importe = importe, nota = nota, litros = litros, precioLitro = precio, precioMercado = mercado, foto = foto)))
 
-    fun updateRefuel(id: String, fecha: LocalDate, importe: Double, nota: String, litros: Double?, precio: Double?, mercado: Boolean) =
+    fun updateRefuel(id: String, fecha: LocalDate, importe: Double, nota: String, litros: Double?, precio: Double?, mercado: Boolean, foto: String? = null) {
+        val anterior = data.refuels.firstOrNull { it.id == id }
+        if (anterior?.foto != null && anterior.foto != foto) Photos.delete(ctx, anterior.foto)
         update(data.copy(refuels = data.refuels.map {
-            if (it.id == id) it.copy(fecha = fecha, importe = importe, nota = nota, litros = litros, precioLitro = precio, precioMercado = mercado) else it
+            if (it.id == id) it.copy(fecha = fecha, importe = importe, nota = nota, litros = litros, precioLitro = precio, precioMercado = mercado, foto = foto) else it
         }))
+    }
 
-    fun deleteRefuel(id: String) =
+    fun deleteRefuel(id: String) {
+        data.refuels.firstOrNull { it.id == id }?.foto?.let { Photos.delete(ctx, it) }
         update(data.copy(refuels = data.refuels.filterNot { it.id == id }))
+    }
 
     /** Precio medio de mercado en una fecha, según la provincia y el combustible configurados. */
     suspend fun precioMercado(fecha: LocalDate): Result<Double> =
@@ -174,7 +182,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private var huellaCopia: String? by mutableStateOf(prefs.getString("huellaCopia", null))
 
     private fun huella(d: AppData): String {
-        val fotos = d.measurements.mapNotNull { it.foto }.sorted().joinToString(",")
+        val fotos = d.fotos().sorted().joinToString(",")
         val md = java.security.MessageDigest.getInstance("SHA-256").digest((Storage.toJson(d) + "|" + fotos).toByteArray())
         return md.joinToString("") { "%02x".format(it) }
     }
@@ -182,7 +190,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /** true si los datos actuales están exactamente cubiertos por una copia de seguridad. */
     val copiaAlDia: Boolean get() = huellaCopia != null && huellaCopia == huella(data)
 
-    private fun borrarFotos() = data.measurements.mapNotNull { it.foto }.forEach { Photos.delete(ctx, it) }
+    private fun borrarFotos() = data.fotos().forEach { Photos.delete(ctx, it) }
 
     /** Deja la app vacía: sin contrato, mediciones, repostajes, gastos ni fotos. */
     fun borrarTodo() {

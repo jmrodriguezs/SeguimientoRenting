@@ -83,6 +83,9 @@ data class ContractParams(
     }
 }
 
+/** Fotos de mediciones y repostajes. */
+fun AppData.fotos(): List<String> = measurements.mapNotNull { it.foto } + refuels.mapNotNull { it.foto }
+
 /** Una lectura del cuentakilómetros (columnas A:B del Excel). */
 data class Measurement(
     val id: String = UUID.randomUUID().toString(),
@@ -103,6 +106,8 @@ data class Refuel(
     val precioLitro: Double? = null,
     /** true si el precio/litro se tomó del precio medio de mercado en lugar de introducirse a mano. */
     val precioMercado: Boolean = false,
+    /** Nombre de fichero de la foto del tique (en filesDir/fotos), si la hay. */
+    val foto: String? = null,
 ) {
     /** Litros: los anotados, o los derivados del importe y el precio. */
     val litrosEfectivos: Double? get() = litros ?: precioLitro?.takeIf { it > 0 }?.let { importe / it }

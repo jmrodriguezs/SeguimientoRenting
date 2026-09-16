@@ -15,7 +15,7 @@ object Backup {
             z.putNextEntry(ZipEntry("datos.json"))
             z.write(Storage.toJson(data).toByteArray(Charsets.UTF_8))
             z.closeEntry()
-            data.measurements.mapNotNull { it.foto }.forEach { name ->
+            data.fotos().forEach { name ->
                 val f = Photos.file(context, name)
                 if (f.exists()) {
                     z.putNextEntry(ZipEntry("fotos/$name"))

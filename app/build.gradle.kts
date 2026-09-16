@@ -13,8 +13,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
+        // Solo arquitecturas de móviles y tablets reales: sin x86/x86_64 (emuladores) la APK pesa la mitad
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     buildTypes {
@@ -46,6 +48,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.3")
     implementation("androidx.exifinterface:exifinterface:1.4.1")
+    // Lectura de tiques de repostaje: OCR de ML Kit en el dispositivo, sin enviar la imagen a ningún servidor.
+    // Modelo empaquetado en la APK (funciona sin Google Play y sin conexión); ~11 MB por arquitectura, ver abiFilters.
+    implementation("com.google.mlkit:text-recognition:16.0.1")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")

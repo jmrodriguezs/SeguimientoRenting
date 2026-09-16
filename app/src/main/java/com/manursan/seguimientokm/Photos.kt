@@ -9,7 +9,7 @@ import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.util.UUID
 
-/** Fotos del cuentakilómetros: se guardan reducidas (máx. 1600 px, JPEG 85) en filesDir/fotos. */
+/** Fotos del cuentakilómetros y de los tiques: se guardan reducidas (máx. 1600 px, JPEG 85) en filesDir/fotos. */
 object Photos {
     private const val MAX = 1600
 
@@ -21,7 +21,7 @@ object Photos {
         File(File(context.cacheDir, "captura").also { it.mkdirs() }, "captura.jpg")
 
     /** Importa una imagen (de la cámara o de la galería) reducida y orientada; devuelve el nombre de fichero. */
-    fun import(context: Context, uri: Uri): String {
+    fun import(context: Context, uri: Uri, prefijo: String = "km"): String {
         val bytes = context.contentResolver.openInputStream(uri)!!.use { it.readBytes() }
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
@@ -40,7 +40,7 @@ object Photos {
             val m = Matrix().apply { postScale(scale, scale); postRotate(rotation) }
             bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, m, true)
         }
-        val name = "km_${UUID.randomUUID()}.jpg"
+        val name = "${prefijo}_${UUID.randomUUID()}.jpg"
         file(context, name).outputStream().use { bmp.compress(Bitmap.CompressFormat.JPEG, 85, it) }
         return name
     }

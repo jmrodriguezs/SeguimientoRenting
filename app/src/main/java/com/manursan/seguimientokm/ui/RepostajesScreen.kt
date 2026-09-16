@@ -1,6 +1,21 @@
 package com.manursan.seguimientokm.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import com.manursan.seguimientokm.Photos
+import com.manursan.seguimientokm.TicketOcr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -63,7 +78,7 @@ enum class GastoSeccion(val label: String) { Repostajes("Repostajes"), Otros("Ot
 
 data class RefuelEdit(
     val id: String?, val fecha: LocalDate, val importe: String, val nota: String,
-    val litros: String = "", val precio: String = "", val mercado: Boolean = false,
+    val litros: String = "", val precio: String = "", val mercado: Boolean = false, val foto: String? = null,
 )
 
 data class ExpenseEdit(val id: String?, val fecha: LocalDate, val categoria: ExpenseCategory, val importe: String, val nota: String)
@@ -106,9 +121,9 @@ fun RepostajesScreen(
         RefuelDialog(
             edit = edit, vm = vm,
             onDismiss = { onEdit(null) },
-            onSave = { fecha, importe, nota, litros, precio, mercado ->
-                if (edit.id == null) vm.addRefuel(fecha, importe, nota, litros, precio, mercado)
-                else vm.updateRefuel(edit.id, fecha, importe, nota, litros, precio, mercado)
+            onSave = { fecha, importe, nota, litros, precio, mercado, foto ->
+                if (edit.id == null) vm.addRefuel(fecha, importe, nota, litros, precio, mercado, foto)
+                else vm.updateRefuel(edit.id, fecha, importe, nota, litros, precio, mercado, foto)
                 onEdit(null)
             },
             onDelete = if (edit.id != null) ({ vm.deleteRefuel(edit.id); onEdit(null) }) else null,
@@ -130,6 +145,7 @@ fun RepostajesScreen(
 @Composable
 private fun RefuelList(r: Resultado, onEdit: (RefuelEdit) -> Unit) {
     val rows = r.repostajes.asReversed()
+    var verFoto by remember { mutableStateOf<String?>(null) }
     if (rows.isEmpty()) {
         EmptyHint("Sin repostajes", "Pulsa + para anotar un repostaje.", Icons.Default.LocalGasStation, Palette.orange)
         return
@@ -148,17 +164,18 @@ private fun RefuelList(r: Resultado, onEdit: (RefuelEdit) -> Unit) {
             )
         }
         items(rows, key = { it.refuel.id }) { row ->
-            RefuelCard(row) {
+            RefuelCard(row, onPhoto = { verFoto = it }) {
                 val f = row.refuel
                 onEdit(RefuelEdit(
                     f.id, f.fecha, Fmt.dec(f.importe, 2).replace(".", ""), f.nota,
                     litros = f.litros?.let { Fmt.dec(it, 2) } ?: "",
                     precio = f.precioLitro?.let { Fmt.dec(it, 3) } ?: "",
-                    mercado = f.precioMercado,
+                    mercado = f.precioMercado, foto = f.foto,
                 ))
             }
         }
     }
+    verFoto?.let { name -> PhotoViewer(name) { verFoto = null } }
 }
 
 /** Estado vacío: icono grande, título y texto centrados. */
@@ -184,7 +201,7 @@ fun EmptyHint(
 }
 
 @Composable
-private fun RefuelCard(row: RefuelRow, onClick: () -> Unit) {
+private fun RefuelCard(row: RefuelRow, onPhoto: (String) -> Unit, onClick: () -> Unit) {
     val accent = Palette.orange
     val f = row.refuel
     Card(
@@ -204,6 +221,10 @@ private fun RefuelCard(row: RefuelRow, onClick: () -> Unit) {
                             Text(f.nota, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                         }
                     }
+                }
+                if (f.foto != null) {
+                    PhotoImage(f.foto, Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).clickable { onPhoto(f.foto) }, maxPx = 120)
+                    Spacer(Modifier.width(10.dp))
                 }
                 Text(Fmt.eur(f.importe), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = accentText(accent), maxLines = 1, softWrap = false)
             }
@@ -231,10 +252,16 @@ private fun RefuelDialog(
     edit: RefuelEdit,
     vm: MainViewModel,
     onDismiss: () -> Unit,
-    onSave: (LocalDate, Double, String, Double?, Double?, Boolean) -> Unit,
+    onSave: (LocalDate, Double, String, Double?, Double?, Boolean, String?) -> Unit,
     onDelete: (() -> Unit)?,
 ) {
     var fecha by remember { mutableStateOf(edit.fecha) }
+    var foto by remember { mutableStateOf(edit.foto) }
+    var importando by remember { mutableStateOf(false) }
+    var leyendo by remember { mutableStateOf(false) }
+    var leido by remember { mutableStateOf<TicketOcr.Datos?>(null) }
+    var leidoError by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
     var importeText by remember { mutableStateOf(edit.importe) }
     var nota by remember { mutableStateOf(edit.nota) }
     var litrosText by remember { mutableStateOf(edit.litros) }
@@ -245,6 +272,39 @@ private fun RefuelDialog(
     var cargando by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    // Foto del tique: fotos nuevas que se descartan si se cancela el diálogo
+    val nuevas = remember { mutableListOf<String>() }
+    fun setFoto(name: String?) { foto = name; if (name != null) nuevas += name }
+    fun cancelar() { nuevas.forEach { Photos.delete(context, it) }; onDismiss() }
+    fun leerTique(name: String) {
+        leyendo = true; leido = null; leidoError = null
+        scope.launch {
+            vm.leerTique(name).onSuccess { d ->
+                leido = d
+                // Se rellena lo reconocido; el usuario lo revisa antes de guardar
+                d.fecha?.let { fecha = it }
+                d.importe?.let { importeText = Fmt.dec(it, 2) }
+                d.litros?.let { litrosText = Fmt.dec(it, 2) }
+                d.precioLitro?.let { precioText = Fmt.dec(it, 3); precioModo = PrecioModo.Manual }
+            }.onFailure { leidoError = it.message ?: "No se pudo leer el tique" }
+            leyendo = false
+        }
+    }
+    fun importar(uri: Uri?) {
+        uri ?: return
+        importando = true
+        scope.launch {
+            val name = vm.importPhoto(uri, "tique")
+            importando = false
+            if (name != null) { setFoto(name); leerTique(name) }
+        }
+    }
+    val captureUri = remember {
+        FileProvider.getUriForFile(context, "com.manursan.seguimientokm.fileprovider", Photos.tempCaptureFile(context))
+    }
+    val camara = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) importar(captureUri) }
+    val galeria = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { importar(it) }
 
     // Precio de mercado: se consulta al abrir en modo mercado y cada vez que cambia la fecha.
     // Si el usuario cambia a manual a mitad de descarga, el efecto se cancela: el finally limpia el estado.
@@ -280,10 +340,41 @@ private fun RefuelDialog(
     val litrosCalc = if (litros == null && importeEscrito != null && precio != null) importeEscrito / precio else null
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = ::cancelar,
         title = { Text(if (edit.id == null) "Nuevo repostaje" else "Editar repostaje") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Foto del tique: al hacerla se leen los datos y se rellena el formulario
+                Text("Foto del tique (opcional)", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (foto != null) {
+                        PhotoImage(foto!!, Modifier.size(72.dp).clip(RoundedCornerShape(12.dp)), maxPx = 200)
+                        Column(Modifier.weight(1f)) {
+                            when {
+                                leyendo -> Row(verticalAlignment = Alignment.CenterVertically) {
+                                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp))
+                                    Text("Leyendo el tique…", style = MaterialTheme.typography.bodySmall)
+                                }
+                                leido != null && !leido!!.vacio -> Text(
+                                    "Leído del tique: ${leido!!.campos.joinToString(", ")}. Revisa los datos antes de guardar.",
+                                    style = MaterialTheme.typography.bodySmall, color = accentText(Palette.green),
+                                )
+                                leido != null -> Text("No se han reconocido datos en la foto; rellena el formulario a mano.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                leidoError != null -> Text("No se pudo leer el tique ($leidoError). La foto se guarda igualmente.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                            }
+                            TextButton(onClick = { setFoto(null); leido = null; leidoError = null }, contentPadding = PaddingValues(0.dp)) { Text("Quitar foto") }
+                        }
+                    } else if (importando) {
+                        CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+                    } else {
+                        OutlinedButton(onClick = { camara.launch(captureUri) }) {
+                            Icon(Icons.Default.PhotoCamera, contentDescription = null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Cámara")
+                        }
+                        OutlinedButton(onClick = { galeria.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
+                            Icon(Icons.Default.Image, contentDescription = null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Galería")
+                        }
+                    }
+                }
                 DateField("Fecha", fecha, { fecha = it })
                 NumberField(
                     "Importe", importeText, { importeText = it }, suffix = "€", isError = error != null,
@@ -327,8 +418,9 @@ private fun RefuelDialog(
             }
         },
         confirmButton = {
-            TextButton(enabled = valido && !(cargando && precioModo == PrecioModo.Mercado), onClick = {
-                onSave(fecha, importe!!, nota.trim(), litros, precio, precioModo == PrecioModo.Mercado && precio != null)
+            TextButton(enabled = valido && !importando && !leyendo && !(cargando && precioModo == PrecioModo.Mercado), onClick = {
+                nuevas.filter { it != foto }.forEach { Photos.delete(context, it) }
+                onSave(fecha, importe!!, nota.trim(), litros, precio, precioModo == PrecioModo.Mercado && precio != null, foto)
             }) { Text("Guardar") }
         },
         dismissButton = {
@@ -336,7 +428,7 @@ private fun RefuelDialog(
                 if (onDelete != null) {
                     TextButton(onClick = { confirmDelete = true }) { Text("Eliminar", color = MaterialTheme.colorScheme.error) }
                 }
-                TextButton(onClick = onDismiss) { Text("Cancelar") }
+                TextButton(onClick = ::cancelar) { Text("Cancelar") }
             }
         },
     )

@@ -313,3 +313,49 @@ class XlsxExportTest {
         java.io.File("build/export_test.xlsx").also { it.parentFile.mkdirs() }.writeBytes(bytes)
     }
 }
+
+class TicketOcrTest {
+    @Test fun tiqueConEtiquetas() {
+        val d = TicketOcr.parse("""
+            REPSOL
+            ES AUTOPISTA NORTE
+            FECHA: 12/09/2026 18:32
+            PRODUCTO: GASOLINA 95 E5
+            LITROS: 32,45
+            PRECIO/L: 1,659
+            IMPORTE: 53,83 EUR
+            IVA 21% INCLUIDO
+            BASE 44,49 IVA 9,34
+            TOTAL 53,83
+        """.trimIndent())
+        assertEquals(53.83, d.importe!!, 1e-9)
+        assertEquals(32.45, d.litros!!, 1e-9)
+        assertEquals(1.659, d.precioLitro!!, 1e-9)
+        assertEquals(java.time.LocalDate.of(2026, 9, 12), d.fecha)
+    }
+
+    @Test fun tiqueEnUnaLinea() {
+        // Formato "cantidad x precio = importe" sin etiquetas y fecha corta
+        val d = TicketOcr.parse("CEPSA\n01-09-26 09:15\nGASOLEO A 28.10 L x 1.489 41.84\nTARJETA 41.84\nGRACIAS POR SU VISITA")
+        assertEquals(41.84, d.importe!!, 1e-9)
+        assertEquals(28.10, d.litros!!, 1e-9)
+        assertEquals(1.489, d.precioLitro!!, 1e-9)
+        assertEquals(java.time.LocalDate.of(2026, 9, 1), d.fecha)
+    }
+
+    @Test fun completaLoQueFalta() {
+        // Solo litros y precio: calcula el importe. Solo importe y precio: calcula los litros.
+        val a = TicketOcr.parse("LITROS 40,00\nPRECIO 1,500 €/L")
+        assertEquals(60.0, a.importe!!, 1e-9)
+        val b = TicketOcr.parse("TOTAL 60,00 €\nPVP 1,500")
+        assertEquals(40.0, b.litros!!, 1e-9)
+        // Sin números útiles: nada reconocido
+        assert(TicketOcr.parse("GRACIAS POR SU VISITA\nTEL 900 000 000").vacio)
+    }
+
+    @Test fun ignoraIvaYCif() {
+        val d = TicketOcr.parse("CIF B12.345.678\nBASE IMPONIBLE 44,49\nIVA 21,00 % 9,34\nTOTAL 53,83")
+        assertEquals(53.83, d.importe!!, 1e-9)
+        assertEquals(null, d.litros)
+    }
+}

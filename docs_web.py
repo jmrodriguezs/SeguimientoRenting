@@ -1,4 +1,10 @@
-import json, os, datetime
+import json, os, sys, datetime
+# Uso: docs_web.py            -> docs/index.html con enlaces a las releases de GitHub (GitHub Pages)
+#      docs_web.py --local    -> ../Web/index.html con enlaces relativos (APK y PDF en la misma carpeta)
+LOCAL = "--local" in sys.argv
+REL = "https://github.com/manursan2026/seguimiento-renting/releases/latest/download/"
+APK_HREF = "SeguimientoRenting.apk" if LOCAL else REL + "SeguimientoRenting.apk"
+PDF_HREF = "Manual_Seguimiento_Renting.pdf" if LOCAL else REL + "Manual_Seguimiento_Renting.pdf"
 imgs = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs_web_imgs.json")))
 apk = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/SeguimientoRenting.apk") / 1e6
 pdf = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/Manual_Seguimiento_Renting.pdf") / 1e6
@@ -76,11 +82,11 @@ html = f"""<!DOCTYPE html>
       <h1>Seguimiento Renting</h1>
       <p class="lead">Aplicación Android para controlar tu contrato de renting: kilómetros, combustible, gastos, proyección a fin de contrato y liquidación estimada.</p>
       <div class="botones">
-        <a class="btn apk" href="SeguimientoRenting.apk" download>
+        <a class="btn apk" href="{APK_HREF}" download>
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.4 11.4 0 0 0-8.94 0L5.65 5.67a.63.63 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
           <span>Descargar APK<small>Android 8.0 o superior · {apk:.1f} MB</small></span>
         </a>
-        <a class="btn pdf" href="Manual_Seguimiento_Renting.pdf" download>
+        <a class="btn pdf" href="{PDF_HREF}" download>
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zM8 13h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
           <span>Manual de usuario<small>PDF · {pdf:.1f} MB</small></span>
         </a>
@@ -120,6 +126,7 @@ html = f"""<!DOCTYPE html>
     <div class="card"><h3><i style="background:var(--naranja)">💶</i>Liquidación estimada</h3><p>Abono o cargo previsto por kilómetros no recorridos o de exceso, aplicando los umbrales y recargos de tu contrato, y coste total con IVA.</p></div>
     <div class="card"><h3><i style="background:var(--rosa)">🛣️</i>¿Cuánto puedo conducir?</h3><p>Margen de kilómetros disponibles hasta el fin del contrato y por día para no pagar exceso.</p></div>
     <div class="card"><h3><i style="background:var(--morado)">⛽</i>Repostajes y consumo</h3><p>Registro de repostajes con litros y precio por litro (manual o precio medio de mercado del combustible de tu vehículo en tu provincia), consumo en l/100 km.</p></div>
+    <div class="card"><h3><i style="background:#D81B60">🧾</i>Foto del tique</h3><p>Haz una foto al tique del repostaje: la app lee en el propio móvil la fecha, el importe, el precio por litro y los litros, y rellena el formulario para que solo tengas que revisarlo.</p></div>
     <div class="card"><h3><i style="background:#0097A7">🧾</i>Otros gastos</h3><p>Peajes, aparcamiento, lavados, neumáticos… se suman al coste real por kilómetro.</p></div>
     <div class="card"><h3><i style="background:#43A047">📄</i>Informe PDF y Excel</h3><p>Informe de estado de una página en PDF para compartir, y exportación a Excel con fórmulas vivas.</p></div>
     <div class="card"><h3><i style="background:#F4511E">🚔</i>Consulta de multas</h3><p>Busca la matrícula en el Tablón Edictal Único del BOE, con revisión semanal automática y aviso si aparece algo.</p></div>
@@ -141,7 +148,7 @@ html = f"""<!DOCTYPE html>
   </ol>
   <div class="nota" style="margin-top:16px">Si Play Protect muestra un aviso, elige <em>Instalar de todos modos</em>. La app no requiere cuenta, no contiene anuncios y solo usa Internet para consultar el precio del combustible y el BOE.</div>
   <div class="req">
-    <span>Android 8.0+</span><span>Versión 1.1</span><span>{apk:.1f} MB</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
+    <span>Android 8.0+</span><span>Versión 1.2</span><span>{apk:.1f} MB</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
   </div>
 </section>
 
@@ -151,13 +158,13 @@ html = f"""<!DOCTYPE html>
   <div class="dl">
     <div class="card">
       <h3><i style="background:var(--amarillo);color:#1F2937">📱</i>Aplicación Android</h3>
-      <p>Fichero de instalación <code>SeguimientoRenting.apk</code> · versión 1.1 · {apk:.1f} MB</p>
-      <a class="btn apk" href="SeguimientoRenting.apk" download>Descargar APK</a>
+      <p>Fichero de instalación <code>SeguimientoRenting.apk</code> · versión 1.2 · {apk:.1f} MB</p>
+      <a class="btn apk" href="{APK_HREF}" download>Descargar APK</a>
     </div>
     <div class="card">
       <h3><i style="background:var(--azul)">📘</i>Manual de usuario</h3>
       <p>Guía completa con capturas de todas las pantallas · PDF · {pdf:.1f} MB</p>
-      <a class="btn pdf" href="Manual_Seguimiento_Renting.pdf" download>Descargar manual (PDF)</a>
+      <a class="btn pdf" href="{PDF_HREF}" download>Descargar manual (PDF)</a>
     </div>
   </div>
 </section>
@@ -166,11 +173,11 @@ html = f"""<!DOCTYPE html>
 </main>
 
 <footer>
-  <div class="wrap">Seguimiento Renting · versión 1.1 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a></div>
+  <div class="wrap">Seguimiento Renting · versión 1.2 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a></div>
 </footer>
 
 </body>
 </html>
 """
-open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "index.html"), "w").write(html)
+open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Web", "index.html") if LOCAL else os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "index.html"), "w").write(html)
 print("index.html", len(html)//1024, "KB")

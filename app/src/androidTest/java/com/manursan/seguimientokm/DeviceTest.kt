@@ -35,7 +35,8 @@ class DeviceTest {
         val activas = nm.activeNotifications.map { it.notification.extras.getString("android.title") to it.notification.extras.getString("android.text") }
         assertTrue(activas.size >= 2)
         assertTrue(activas.any { it.first == "Anota los kilómetros" && it.second!!.contains("km/día") })
-        assertTrue(activas.any { it.first == "Ajuste anual de kilómetros" && it.second!!.contains("29/12/2026") })
+        // El texto depende de los datos guardados en el dispositivo: basta con que lleve una fecha
+        assertTrue(activas.any { it.first == "Ajuste anual de kilómetros" && Regex("""\d{2}/\d{2}/\d{4}""").containsMatchIn(it.second!!) })
         nm.cancelAll()
     }
 
@@ -54,18 +55,19 @@ class DeviceTest {
     @Test
     fun copiaDeSeguridadConFotos() {
         // Foto de prueba en la carpeta de fotos
-        val name = "km_test.jpg"
-        Photos.file(context, name).outputStream().use { Bitmap.createBitmap(8, 8, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.JPEG, 90, it) }
+        val name = "km_test.jpg"; val tique = "tique_test.jpg"
+        for (n in listOf(name, tique)) Photos.file(context, n).outputStream().use { Bitmap.createBitmap(8, 8, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.JPEG, 90, it) }
         val base = SeedData.create()
-        val data = base.copy(measurements = base.measurements.mapIndexed { i, m -> if (i == 0) m.copy(foto = name) else m })
+        val data = base.copy(
+            measurements = base.measurements.mapIndexed { i, m -> if (i == 0) m.copy(foto = name) else m },
+            refuels = base.refuels.mapIndexed { i, f -> if (i == 0) f.copy(foto = tique) else f },
+        )
         val zip = ByteArrayOutputStream().also { Backup.write(context, data, it) }.toByteArray()
-        Photos.delete(context, name)
-        assertTrue(!Photos.file(context, name).exists())
+        for (n in listOf(name, tique)) { Photos.delete(context, n); assertTrue(!Photos.file(context, n).exists()) }
 
         val restaurado = Backup.read(context, zip.inputStream())
         assertEquals(data, restaurado)
-        assertTrue(Photos.file(context, name).exists())
-        Photos.delete(context, name)
+        for (n in listOf(name, tique)) { assertTrue(Photos.file(context, n).exists()); Photos.delete(context, n) }
 
         // Un JSON suelto (formato antiguo) también se restaura
         val json = Storage.toJson(base).toByteArray()
@@ -146,5 +148,35 @@ class DeviceTest {
         assertTrue("precio fuera de rango: $precio", precio in 1.0..2.5)
         val cacheado = context.getSharedPreferences("precios_g95", Context.MODE_PRIVATE).getFloat("$fecha|28", -1f)
         assertEquals(precio.toFloat(), cacheado, 1e-6f)
+    }
+
+    /** Tique ficticio dibujado en un bitmap: comprueba el OCR real de ML Kit y la extracción. Guarda la imagen para el manual. */
+    @Test fun leeTiqueDeRepostaje() {
+        val bmp = tiqueFicticio()
+        java.io.File(context.getExternalFilesDir(null), "manual_tique.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        val texto = kotlinx.coroutines.runBlocking { TicketOcr.reconocer(context, bmp) }
+        val d = TicketOcr.parse(texto)
+        assertEquals("texto: $texto", 53.83, d.importe!!, 1e-9)
+        assertEquals(32.45, d.litros!!, 1e-9)
+        assertEquals(1.659, d.precioLitro!!, 1e-9)
+        assertEquals("texto: $texto", LocalDate.of(2026, 9, 12), d.fecha)
+    }
+
+    private fun tiqueFicticio(): Bitmap {
+        val w = 720; val h = 1100
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = android.graphics.Canvas(bmp); c.drawColor(android.graphics.Color.WHITE)
+        val p = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = android.graphics.Color.BLACK; textSize = 34f; typeface = android.graphics.Typeface.MONOSPACE
+        }
+        val lineas = listOf(
+            "   ESTACION DE SERVICIO EJEMPLO", "   AVDA. DE LA CONSTITUCION, 1", "   CIF B00000000", "",
+            "FECHA: 12/09/2026   HORA: 18:32", "SURTIDOR: 3", "", "PRODUCTO: GASOLINA 95 E5",
+            "LITROS:          32,45", "PRECIO/L:         1,659", "IMPORTE:          53,83 EUR", "",
+            "BASE IMPONIBLE    44,49", "IVA 21%            9,34", "TOTAL             53,83", "",
+            "PAGO CON TARJETA", "   GRACIAS POR SU VISITA",
+        )
+        lineas.forEachIndexed { i, l -> c.drawText(l, 40f, 80f + i * 52f, p) }
+        return bmp
     }
 }

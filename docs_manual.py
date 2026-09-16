@@ -118,7 +118,7 @@ class Doc(BaseDocTemplate):
         canv.line(doc.leftMargin, A4[1] - 1.5*cm, A4[0] - doc.rightMargin, A4[1] - 1.5*cm)
         canv.setFont("Arial", 8); canv.setFillColor(GRIS)
         canv.drawString(doc.leftMargin, A4[1] - 1.35*cm, "Seguimiento Renting · Manual de usuario")
-        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión 1.1 · %s" % datetime.date.today().strftime("%d/%m/%Y"))
+        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión 1.2 · %s" % datetime.date.today().strftime("%d/%m/%Y"))
         canv.drawCentredString(A4[0] / 2, 1.2*cm, str(doc.page))
         canv.restoreState()
     def afterFlowable(self, fl):
@@ -142,7 +142,7 @@ story += [Spacer(1, 2.2*cm), P("Seguimiento Renting", "title"), Spacer(1, 0.3*cm
 cover_tbl = Table([[shot("01_resumen_1", 4.4*cm), shot("30_proy_1", 4.4*cm), shot("20_rep_lista", 4.4*cm)]], colWidths=[5.2*cm]*3, hAlign="CENTER")
 cover_tbl.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER")]))
 story += [cover_tbl, Spacer(1, 0.8*cm),
-          Paragraph("Versión 1.1 · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % datetime.date.today().strftime("%B %Y").capitalize(), st["cap"])]
+          Paragraph("Versión 1.2 · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % datetime.date.today().strftime("%B %Y").capitalize(), st["cap"])]
 
 # ---------- Índice ----------
 toc = TableOfContents(); toc.levelStyles = [st["toc1"], st["toc2"]]; toc.dotsMinLevel = 0
@@ -272,7 +272,8 @@ story += [P("Tiene dos secciones, seleccionables arriba: <b>Repostajes</b> y <b>
 story += H2("7.1 Repostajes")
 story += [P("Cada tarjeta muestra fecha, importe, acumulado, litros, precio por litro (indicando si fue manual o de mercado) y coste diario. La cabecera resume el total repostado y el consumo.")]
 story += H2("7.2 Añadir un repostaje")
-story += [bullets(["<b>Fecha</b> e <b>importe</b> en euros. El importe es obligatorio salvo que indiques litros y precio, en cuyo caso se calcula.",
+story += [bullets(["<b>Foto del tique</b> (opcional): con <b>Cámara</b> o <b>Galería</b>. Al elegirla, la aplicación <b>lee el tique</b> y rellena fecha, importe, precio por litro y litros (véase 7.3). La foto queda guardada con el repostaje: se ve como miniatura en la tarjeta y a pantalla completa al pulsarla.",
+                   "<b>Fecha</b> e <b>importe</b> en euros. El importe es obligatorio salvo que indiques litros y precio, en cuyo caso se calcula.",
                    "<b>Precio por litro</b>, con dos modos: <b>Manual</b> (lo escribes del tique) o <b>Mercado</b> (la aplicación consulta el precio medio del combustible "
                    "y la provincia configurados en Ajustes en esa fecha; se muestra en pantalla y se actualiza si cambias la fecha). Si no hay conexión, se guarda sin precio y podrás completarlo después.",
                    "<b>Litros</b> (opcional). Si los dejas en blanco y hay precio, se calculan como importe ÷ precio y se muestra el resultado.",
@@ -280,7 +281,16 @@ story += [bullets(["<b>Fecha</b> e <b>importe</b> en euros. El importe es obliga
           note("Si tienes repostajes antiguos sin litros ni precio, usa <b>menú ⋮ → Completar precios de mercado</b>: la aplicación busca el precio medio de cada fecha y lo asigna a todos los que "
                "no lo tengan, con lo que el consumo pasa a calcularse con todos los repostajes.", VERDE, "Consejo"),
           figrow([("20_rep_lista", "Lista de repostajes"), ("21_rep_nuevo_mercado", "Nuevo repostaje con precio de mercado"), ("22_rep_nuevo_manual", "Precio manual")])]
-story += H2("7.3 Otros gastos")
+story += H2("7.3 Leer el tique con la cámara")
+story += [P("Al hacer o elegir la foto del tique, la aplicación reconoce el texto <b>en el propio teléfono</b> (no envía la imagen a ningún servidor) y busca en él "
+            "la <b>fecha</b>, el <b>importe total</b>, el <b>precio por litro</b> y los <b>litros</b>. Lo que encuentra lo escribe en el formulario y lo indica con el aviso "
+            "<i>Leído del tique: …</i>; el precio pasa a modo <b>Manual</b> con el valor del tique. Si solo reconoce dos de los tres datos (por ejemplo litros y precio), calcula el tercero."),
+          bullets(["Revisa siempre los datos antes de guardar: los tiques cambian mucho de una gasolinera a otra y la lectura puede fallar o confundir una cifra.",
+                   "Consejos para que lea bien: tique plano y bien iluminado, sin sombras ni reflejos, encuadrado de cerca y con el texto derecho.",
+                   "Si no reconoce nada, lo indica y puedes rellenar el formulario a mano; la foto se guarda igualmente.",
+                   "La foto se incluye en la copia de seguridad y se borra al eliminar el repostaje o al pulsar <b>Quitar foto</b>."]),
+          figrow([("25_rep_tique", "Formulario rellenado a partir de la foto del tique")], w=7*cm)]
+story += H2("7.4 Otros gastos")
 story += [P("Gastos del coche que no forman parte del contrato: <b>peaje, aparcamiento, lavado, multa, mantenimiento, AdBlue u otro</b>. Se anotan con fecha, categoría, importe y nota. "
             "Entran en el coste por kilómetro y en el coste de uso hasta hoy, pero no en el coste del contrato ni en la liquidación."),
           figrow([("23_gastos_lista", "Otros gastos"), ("24_gasto_nuevo", "Nuevo gasto con categoría")])]
