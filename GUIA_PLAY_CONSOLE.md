@@ -1,4 +1,4 @@
-﻿# Guía paso a paso para publicar en Google Play Console
+# Guía paso a paso para publicar en Google Play Console
 
 Esta guía contiene todas las instrucciones y respuestas exactas a los cuestionarios obligatorios de Google Play Console para publicar **Seguimiento Renting**.
 
@@ -10,7 +10,7 @@ El archivo generado y firmado listo para subir es:
 📁 **`app/build/outputs/bundle/release/app-release.aab`**
 
 - **Firmado con:** `release-upload.jks` (válido hasta septiembre de 2056).
-- **Versión:** `versionCode = 3`, `versionName = "1.2"`.
+- **Versión:** `versionCode = 4`, `versionName = "1.2.1"`.
 - **Target SDK:** 36 (Android 16, cumple de sobra los requisitos de Google Play).
 - **Permisos:** Solo `INTERNET`, `POST_NOTIFICATIONS` y `RECEIVE_BOOT_COMPLETED`. (Se eliminó el permiso sensible `CALL_PHONE`, evitando rechazos automáticos de Google).
 
@@ -44,6 +44,7 @@ Ve a **Crecimiento > Presencia en Google Play Store > Ficha principal de la tien
   Control de kilómetros, repostajes, gastos, proyección y liquidación de renting.
   ```
 - **Descripción completa (máx. 4000 car.):**
+  *(¡Texto actualizado para cumplir estrictamente la Política de Afirmaciones Engañosas e Información Gubernamental de Google Play!)*
   ```text
   Seguimiento Renting es la herramienta definitiva para llevar el control exhaustivo de tu vehículo en renting o uso personal.
 
@@ -58,6 +59,16 @@ Ve a **Crecimiento > Presencia en Google Play Store > Ficha principal de la tien
   • Informes y exportación: Generación de informe ejecutivo en PDF de 1 página para imprimir o compartir, y exportación completa a Excel (.xlsx) con fórmulas vivas.
   • Copias de seguridad: Respaldo completo en un único archivo ZIP (datos y fotos) y compatibilidad con la copia automática de Android.
   • 100% Privada y sin conexión: Los datos se almacenan exclusivamente en tu dispositivo. Sin cuentas, sin registro y sin anuncios.
+
+  --------------------------------------------------
+  AVISO Y DESCARGO DE RESPONSABILIDAD (DISCLAIMER):
+  Seguimiento Renting es una aplicación independiente desarrollada para la gestión privada y personal de vehículos. Esta aplicación NO representa, no está asociada ni tiene autorización o vinculación oficial con ninguna entidad gubernamental u organismo público (como la Dirección General de Tráfico - DGT, la Agencia Estatal Boletín Oficial del Estado - BOE ni ningún ministerio del Gobierno de España).
+
+  Fuentes de información oficiales utilizadas:
+  • Tablón Edictal Único del BOE (notificaciones de tráfico): Búsqueda pública en https://www.boe.es/tablon_edictal_unico/ y https://www.boe.es/buscar/notificaciones.php
+  • Dirección General de Tráfico (DGT): Acceso informativo a la sede electrónica en https://sede.dgt.gob.es/
+  • Precios de referencia de carburantes: Datos abiertos públicos oficiales del Ministerio para la Transición Ecológica y el Reto Demográfico a través del Geoportal de Gasolineras https://geoportalgasolineras.es/ y el servicio REST https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/
+  --------------------------------------------------
   ```
 
 ### Elementos gráficos (Assets listos en la carpeta `play_store_assets/`)
@@ -129,7 +140,7 @@ En el menú lateral, ve a **Política y programas > Contenido de la aplicación*
 
 ---
 
-## 5. Lanzar la versión
+## 5. Lanzar la versión (o Actualizar tras Corrección)
 
 1. En el menú lateral, ve a:
    - Si tu cuenta es de desarrollador personal creada después de nov. 2023: Ve a **Pruebas > Pruebas cerradas** (Google exige 20 testers durante 14 días antes de pasar a producción).
@@ -138,16 +149,42 @@ En el menú lateral, ve a **Política y programas > Contenido de la aplicación*
 3. En **Firma de aplicaciones de Play**, pulsa en Continuar / Aceptar (Play App Signing utilizará la clave de subida `release-upload.jks` que configuramos).
 4. En **Paquetes de aplicaciones**, arrastra y suelta el archivo:
    `app/build/outputs/bundle/release/app-release.aab`
-5. Nombre de la versión: `1.2 (3)`.
+5. Nombre de la versión: `1.2.1 (4)`.
 6. En **Notas de la versión**, añade:
    ```text
-   Versión inicial de Seguimiento Renting:
+   Versión 1.2.1 de Seguimiento Renting:
+   - Cumplimiento de la política de información gubernamental: descargo de responsabilidad y enlaces directos a las fuentes de datos públicos oficiales (BOE y Ministerio).
    - Control de kilómetros, previsión a fin de contrato y liquidación estimada.
    - Historial de repostajes y consumo con lectura automática de tiques por OCR.
-   - Consulta de multas en el BOE y precios de referencia de combustible.
    - Widget para pantalla de inicio y exportación de informe PDF y hoja Excel.
    ```
 7. Pulsa en **Revisar versión** y luego en **Iniciar lanzamiento**.
+
+---
+
+## 5.1. Solución rápida al rechazo por "Política de afirmaciones engañosas (Información Gubernamental)"
+
+Si Google Play ha rechazado o detenido la publicación con el mensaje:
+> *"Falta el enlace a la fuente de información gubernamental. Tu aplicación proporciona información gubernamental, pero no incluye una o varias URLs o enlaces claros y accesibles a las fuentes originales..."*
+
+Sigue estos **3 pasos exactos** para subsanarlo:
+
+1. **Paso 1: Actualizar la Ficha de la tienda (Descripción completa)**
+   - En Google Play Console, ve a **Crecimiento > Presencia en Google Play Store > Ficha principal de la tienda**.
+   - En el campo **Descripción completa**, sustituye el texto completo por el texto indicado en la **Sección 3** de esta guía (que incluye el bloque de `AVISO Y DESCARGO DE RESPONSABILIDAD (DISCLAIMER)` con los enlaces funcionales a `www.boe.es`, `sede.dgt.gob.es` y `geoportalgasolineras.es`).
+   - Pulsa en **Guardar** (abajo a la derecha).
+
+2. **Paso 2: Subir la nueva versión del App Bundle (`versionCode = 4`, `versionName = "1.2.1"`)**
+   - Ve a **Pruebas > Pruebas cerradas** (o la sección donde estuvieras publicando, p. ej. Producción).
+   - Pulsa en **Crear nueva versión**.
+   - Arrastra el nuevo bundle `app/build/outputs/bundle/release/app-release.aab`.
+   - Añade las notas de la versión indicadas arriba.
+   - Pulsa en **Revisar versión** y **Guardar**.
+
+3. **Paso 3: Enviar los cambios para revisión**
+   - Ve a **Panel de control** o **Vista general de la publicación** (Publishing overview).
+   - Si la publicación administrada está activada, pulsa en **Enviar para revisión** o **Enviar X cambios para revisión**.
+   - Con la ficha actualizada con los enlaces `.gob.es`, el descargo visible y la aplicación incluyendo el aviso legal en Ajustes y Menú, Google Play validará y aprobará el lanzamiento.
 
 ---
 

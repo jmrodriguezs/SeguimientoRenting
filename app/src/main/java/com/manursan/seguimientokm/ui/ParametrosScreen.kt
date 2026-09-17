@@ -74,6 +74,8 @@ import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -361,6 +363,23 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                         dismissButton = { TextButton(onClick = { vm.cerrarDiagnostico() }) { Text("Cerrar") } },
                     )
                 }
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            "Aviso: Esta aplicación es independiente y no representa a ninguna entidad pública (como la DGT o el BOE). Los datos proceden del servicio público oficial del Tablón Edictal Único del BOE.",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            "Fuente oficial: www.boe.es/tablon_edictal_unico",
+                            style = MaterialTheme.typography.labelSmall, color = Palette.blue,
+                            modifier = Modifier.clickable { abrir("https://www.boe.es/tablon_edictal_unico/") },
+                        )
+                    }
+                }
                 Text(
                     "En un renting el titular es la compañía: las multas se le notifican a ella y te las reenvía. Al tablón del BOE solo llegan las que no se han podido notificar. Las que tengas a tu nombre se ven en la sede de la DGT con identificación.",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -398,6 +417,23 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                     FuelPrices.PROVINCIAS.forEach { (id, nombre) ->
                         DropdownMenuItem(text = { Text(nombre) }, onClick = { vm.setProvincia(id); provOpen = false })
                     }
+                }
+            }
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "Aviso: Esta aplicación no representa a ningún ministerio ni organismo público. Los precios de referencia se obtienen del servicio de datos abiertos del Geoportal de Gasolineras del Ministerio.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        "Fuente oficial: geoportalgasolineras.es",
+                        style = MaterialTheme.typography.labelSmall, color = Palette.blue,
+                        modifier = Modifier.clickable { abrir("https://geoportalgasolineras.es/") },
+                    )
                 }
             }
             Text(

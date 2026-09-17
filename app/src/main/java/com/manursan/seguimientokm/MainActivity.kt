@@ -37,6 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.TopAppBarDefaults
@@ -99,6 +106,7 @@ class MainActivity : ComponentActivity() {
 fun App(vm: MainViewModel) {
     var tab by rememberSaveable { mutableStateOf(Tab.Resumen) }
     var menuOpen by remember { mutableStateOf(false) }
+    var showLegalDialog by remember { mutableStateOf(false) }
     var measurementEdit by remember { mutableStateOf<MeasurementEdit?>(null) }
     var refuelEdit by remember { mutableStateOf<RefuelEdit?>(null) }
     var expenseEdit by remember { mutableStateOf<ExpenseEdit?>(null) }
@@ -180,6 +188,9 @@ fun App(vm: MainViewModel) {
                         DropdownMenuItem(text = { Text("Restaurar copia de seguridad") }, onClick = {
                             menuOpen = false; openBackup.launch(arrayOf("application/zip", "application/json", "*/*"))
                         })
+                        DropdownMenuItem(text = { Text("Aviso legal y fuentes") }, onClick = {
+                            menuOpen = false; showLegalDialog = true
+                        })
                     }
                 },
             )
@@ -242,5 +253,62 @@ fun App(vm: MainViewModel) {
             }
         }
         }
+    }
+
+    if (showLegalDialog) {
+        AlertDialog(
+            onDismissRequest = { showLegalDialog = false },
+            title = { Text("Aviso legal y fuentes oficiales", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        "Seguimiento Renting es una aplicación independiente de gestión y control para uso personal.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        "Esta aplicación NO representa a ninguna entidad gubernamental ni pública (como la DGT, el BOE o ministerios del Gobierno de España) ni tiene vinculación oficial con las mismas.",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        "Fuentes de información oficiales utilizadas:",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("• BOE - Tablón Edictal Único (TEU):", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            "  https://www.boe.es/tablon_edictal_unico/",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Palette.blue,
+                            modifier = Modifier.clickable {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.boe.es/tablon_edictal_unico/")))
+                            },
+                        )
+                        Text("• Sede Electrónica DGT:", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            "  https://sede.dgt.gob.es/",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Palette.blue,
+                            modifier = Modifier.clickable {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sede.dgt.gob.es/")))
+                            },
+                        )
+                        Text("• Geoportal de Gasolineras (Ministerio):", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            "  https://geoportalgasolineras.es/",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Palette.blue,
+                            modifier = Modifier.clickable {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://geoportalgasolineras.es/")))
+                            },
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLegalDialog = false }) { Text("Entendido") }
+            },
+        )
     }
 }
