@@ -118,7 +118,7 @@ class Doc(BaseDocTemplate):
         canv.line(doc.leftMargin, A4[1] - 1.5*cm, A4[0] - doc.rightMargin, A4[1] - 1.5*cm)
         canv.setFont("Arial", 8); canv.setFillColor(GRIS)
         canv.drawString(doc.leftMargin, A4[1] - 1.35*cm, "Seguimiento Renting · Manual de usuario")
-        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión 1.2 · %s" % datetime.date.today().strftime("%d/%m/%Y"))
+        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión 1.2.1 · %s" % datetime.date.today().strftime("%d/%m/%Y"))
         canv.drawCentredString(A4[0] / 2, 1.2*cm, str(doc.page))
         canv.restoreState()
     def afterFlowable(self, fl):
@@ -142,7 +142,7 @@ story += [Spacer(1, 2.2*cm), P("Seguimiento Renting", "title"), Spacer(1, 0.3*cm
 cover_tbl = Table([[shot("01_resumen_1", 4.4*cm), shot("30_proy_1", 4.4*cm), shot("20_rep_lista", 4.4*cm)]], colWidths=[5.2*cm]*3, hAlign="CENTER")
 cover_tbl.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER")]))
 story += [cover_tbl, Spacer(1, 0.8*cm),
-          Paragraph("Versión 1.2 · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % datetime.date.today().strftime("%B %Y").capitalize(), st["cap"])]
+          Paragraph("Versión 1.2.1 · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % datetime.date.today().strftime("%B %Y").capitalize(), st["cap"])]
 
 # ---------- Índice ----------
 toc = TableOfContents(); toc.levelStyles = [st["toc1"], st["toc2"]]; toc.dotsMinLevel = 0
@@ -318,9 +318,9 @@ story += H1("9. Pestaña Ajustes")
 story += H2("9.1 Apariencia")
 story += [P("<b>Sistema</b> (sigue el tema del dispositivo), <b>Claro</b> u <b>Oscuro</b>. El cambio es inmediato y se recuerda.")]
 story += H2("9.2 Compañía de renting")
-story += [P("Tarjeta de contacto con tu compañía de renting: botones de llamada directa a los teléfonos que hayas configurado y un botón de correo que abre un mensaje con el número de contrato en el asunto. "
+story += [P("Tarjeta de contacto con tu compañía de renting: botones con los teléfonos que hayas configurado y un botón de correo que abre un mensaje con el número de contrato en el asunto. "
             "El nombre de la compañía, los teléfonos y el correo se introducen en el bloque <i>Contrato</i> (apartado 9.6); mientras estén vacíos, la tarjeta lo indica. "
-            "La primera vez Android pide permiso para realizar llamadas; si se deniega, se abre el marcador con el número ya escrito.")]
+            "Al pulsar un teléfono se abre el marcador del sistema con el número ya escrito; solo tienes que confirmar la llamada. La aplicación no necesita permiso de teléfono.")]
 story += H2("9.3 Multas")
 story += [P("Consulta el <b>Tablón Edictal Único del BOE</b>, donde la DGT y los ayuntamientos publican las sanciones de tráfico que no han podido notificar (últimos 3 meses)."),
           bullets(["<b>Matrícula a consultar</b>: viene rellena con la del contrato; puedes escribir cualquier otra (las consultas de otras matrículas no se guardan).",
@@ -369,6 +369,11 @@ story += [P("<b>Guardar copia de seguridad</b> crea un fichero ZIP con nombre <i
             "Elige dónde guardarlo (Descargas, Drive…). <b>Restaurar copia de seguridad</b> abre el selector de archivos; al elegir el ZIP se sustituyen los datos actuales por los de la copia. "
             "Es la forma de pasar la aplicación a otro dispositivo o de recuperar los datos tras un borrado."),
           note("Haz una copia después de cada tanda de cambios importantes (por ejemplo tras <i>Completar precios de mercado</i>). La copia guarda el estado de ese momento; lo que anotes después no está en ella.", AZUL, "Recomendación")]
+story += H2("10.5 Aviso legal y fuentes")
+story += [P("Muestra un aviso que aclara que Seguimiento Renting es una aplicación independiente, de uso personal, sin vinculación con la DGT, el BOE ni ningún ministerio, "
+            "y enlaza a las fuentes oficiales de las que toma los datos: el Tablón Edictal Único del BOE, la sede electrónica de la DGT y el Geoportal de Gasolineras del Ministerio. "
+            "El mismo aviso aparece, en versión corta, en las tarjetas de <i>Multas</i> y <i>Precio de mercado</i> de Ajustes."),
+          figrow([("51_aviso_legal", "Aviso legal y fuentes oficiales")], w=7*cm)]
 
 # ---------- 11. Widget y notificaciones ----------
 story += H1("11. Widget y notificaciones")
@@ -405,7 +410,7 @@ story += [bullets(["Los datos (contrato, mediciones, repostajes, gastos, fotos y
                    "La <b>copia automática de Android</b> (Google Drive, si está activada en el dispositivo) incluye los datos y ajustes pero no las fotos; para las fotos usa la copia manual ZIP.",
                    "<b>Precio de mercado</b>: consulta los datos abiertos de precios de carburantes del Ministerio de Industria (Geoportal de gasolineras). Se envía únicamente la fecha, la provincia y el tipo de carburante.",
                    "<b>Multas</b>: consulta el buscador público del Tablón Edictal Único del BOE. Se envía únicamente la matrícula como texto de búsqueda.",
-                   "<b>Llamadas</b>: el permiso de teléfono solo se usa al pulsar un botón de llamada. <b>Notificaciones</b>: solo para los recordatorios que actives.",
+                   "<b>Llamadas</b>: los botones de teléfono abren el marcador del sistema; la aplicación no tiene permiso para llamar por sí misma. <b>Notificaciones</b>: solo para los recordatorios que actives.",
                    "Ambos servicios públicos pueden cambiar de formato; en ese caso la función afectada mostrará un error claro en lugar de un resultado incorrecto."])]
 
 # ---------- Apéndice A ----------
@@ -438,7 +443,7 @@ story += H1("Apéndice B. Ficha técnica")
 story += [table([["Característica", "Detalle"],
                  ["Plataforma", "Android 8.0 (API 26) o superior; teléfonos y tablets"],
                  ["Tamaño", "Aproximadamente 1,6 MB"],
-                 ["Permisos", "Internet (precios y BOE), notificaciones (recordatorios), teléfono (llamada directa), cámara (a través de la app de cámara del sistema; no requiere permiso propio)"],
+                 ["Permisos", "Internet (precios y BOE) y notificaciones (recordatorios). Las llamadas se hacen a través del marcador y las fotos a través de la app de cámara del sistema, sin permisos propios."],
                  ["Datos", "Fichero JSON en almacenamiento privado + carpeta de fotos; copia ZIP manual; copia automática de Android"],
                  ["Fuentes externas", "Precios de carburantes: sedeaplicaciones.minetur.gob.es · Multas: www.boe.es (Tablón Edictal Único)"],
                  ["Formatos de exportación", "PDF (informe de una página), XLSX (libro con fórmulas), ZIP (copia de seguridad)"],

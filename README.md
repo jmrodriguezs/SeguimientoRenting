@@ -36,7 +36,7 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
 - **Repostajes**: histórico de repostajes (columnas I–L) con litros y precio/litro, y sección **Otros gastos**.
 - **Proyección**: escenario de km/día (N22): media real acumulada o valor manual, y tabla mensual
   hasta el fin de contrato.
-- **Ajustes**: apariencia, contacto de la compañía de renting (configurable; llamada directa y correo), consulta de multas (tablón del BOE con la matrícula y sede DGT), recordatorios, provincia para el precio de mercado, parámetros del contrato (M1:N15, IVA y % deducción) y borrado de todos los datos (contrato incluido), habilitado solo con una copia de seguridad de los datos actuales.
+- **Ajustes**: apariencia, contacto de la compañía de renting (configurable; teléfonos por el marcador y correo), consulta de multas (tablón del BOE con la matrícula y sede DGT), recordatorios, provincia para el precio de mercado, parámetros del contrato (M1:N15, IVA y % deducción) y borrado de todos los datos (contrato incluido), habilitado solo con una copia de seguridad de los datos actuales.
 - Menú `⋮`:
   - **Informe PDF** (se abre la hoja de compartir: WhatsApp, correo, Drive, imprimir…): estado en una página A4 — indicadores, gráfica, margen, liquidación,
     combustible y gastos, coste del contrato y últimas mediciones. Generado con `PdfDocument`, sin librerías.
@@ -45,6 +45,7 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
     rangos adaptados al número de filas. Se recalcula al abrirlo en Excel, Numbers o Google Sheets.
   - Completar precios de mercado (rellena el precio/litro de los repostajes que no lo tienen).
   - Guardar / restaurar copia de seguridad (ZIP con datos y fotos; también admite el JSON antiguo).
+  - Aviso legal y fuentes: la app es independiente (no es de la DGT, el BOE ni ningún ministerio) y enlaza a las fuentes oficiales.
 
 ## Datos
 Se guardan en el almacenamiento privado de la app. **Actualizar la app instalando un APK nuevo

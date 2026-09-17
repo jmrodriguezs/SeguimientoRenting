@@ -2,6 +2,8 @@ import json, os, sys, datetime
 # Uso: docs_web.py            -> docs/index.html con enlaces a las releases de GitHub (GitHub Pages)
 #      docs_web.py --local    -> ../Web/index.html con enlaces relativos (APK y PDF en la misma carpeta)
 LOCAL = "--local" in sys.argv
+import re
+VERSION = re.search(r'versionName = "([^"]+)"', open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "app", "build.gradle.kts")).read()).group(1)
 REL = "https://github.com/manursan2026/seguimiento-renting/releases/latest/download/"
 APK_HREF = "SeguimientoRenting.apk" if LOCAL else REL + "SeguimientoRenting.apk"
 PDF_HREF = "Manual_Seguimiento_Renting.pdf" if LOCAL else REL + "Manual_Seguimiento_Renting.pdf"
@@ -149,9 +151,10 @@ html = f"""<!DOCTYPE html>
     <li>Si Android lo pide, permite <strong>instalar aplicaciones de esta fuente</strong> (navegador o gestor de archivos). Es una pregunta habitual para cualquier app fuera de Google Play.</li>
     <li>Pulsa <strong>Instalar</strong>. Al abrir la app por primera vez, ve a <strong>Ajustes</strong> y rellena los datos de tu contrato; hasta entonces no se pueden añadir mediciones.</li>
   </ol>
-  <div class="nota" style="margin-top:16px">Si Play Protect muestra un aviso, elige <em>Instalar de todos modos</em>. La app no requiere cuenta, no contiene anuncios y solo usa Internet para consultar el precio del combustible y el BOE.</div>
+  <div class="nota" style="margin-top:16px">Si Play Protect muestra un aviso, elige <em>Instalar de todos modos</em>. La app no requiere cuenta ni contiene anuncios.</div>
+  <div class="nota" style="margin-top:12px">Seguimiento Renting es una aplicación independiente de uso privado y <strong>no representa a ninguna entidad pública</strong> (como el BOE o la DGT). Solo usa Internet para consultar datos públicos abiertos de combustible (<a href="https://geoportalgasolineras.es/" target="_blank" rel="noopener">geoportalgasolineras.es</a>) y notificaciones públicas en el <a href="https://www.boe.es/tablon_edictal_unico/" target="_blank" rel="noopener">Tablón Edictal Único del BOE</a>.</div>
   <div class="req">
-    <span>Android 8.0+</span><span>Versión 1.2</span><span>{apk:.1f} MB</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
+    <span>Android 8.0+</span><span>Versión {VERSION}</span><span>{apk:.0f} MB</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
   </div>
 </section>
 
@@ -161,7 +164,7 @@ html = f"""<!DOCTYPE html>
   <div class="dl">
     <div class="card">
       <h3><i style="background:var(--amarillo);color:#1F2937">📱</i>Aplicación Android</h3>
-      <p>Fichero de instalación <code>SeguimientoRenting.apk</code> · versión 1.2 · {apk:.1f} MB</p>
+      <p>Fichero de instalación <code>SeguimientoRenting.apk</code> · versión {VERSION} · {apk:.0f} MB</p>
       <a class="btn apk" href="{APK_HREF}" download>Descargar APK</a>
     </div>
     <div class="card">
@@ -176,7 +179,7 @@ html = f"""<!DOCTYPE html>
 </main>
 
 <footer>
-  <div class="wrap">Seguimiento Renting · versión 1.2 · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.{enlaces}</div>
+  <div class="wrap">Seguimiento Renting · versión {VERSION} · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Esta aplicación no representa a ninguna entidad pública. Fuentes oficiales: <a href="https://www.boe.es/tablon_edictal_unico/" target="_blank" rel="noopener">BOE (TEU)</a> · <a href="https://sede.dgt.gob.es/" target="_blank" rel="noopener">Sede DGT</a> · <a href="https://geoportalgasolineras.es/" target="_blank" rel="noopener">Geoportal de Gasolineras</a>{enlaces}</div>
 </footer>
 
 </body>
