@@ -65,9 +65,9 @@ Ve a **Crecimiento > Presencia en Google Play Store > Ficha principal de la tien
   Seguimiento Renting es una aplicación independiente desarrollada para la gestión privada y personal de vehículos. Esta aplicación NO representa, no está asociada ni tiene autorización o vinculación oficial con ninguna entidad gubernamental u organismo público (como la Dirección General de Tráfico - DGT, la Agencia Estatal Boletín Oficial del Estado - BOE ni ningún ministerio del Gobierno de España).
 
   Fuentes de información oficiales utilizadas:
-  • Tablón Edictal Único del BOE (notificaciones de tráfico): Búsqueda pública en https://www.boe.es/tablon_edictal_unico/ y https://www.boe.es/buscar/notificaciones.php
-  • Dirección General de Tráfico (DGT): Acceso informativo a la sede electrónica en https://sede.dgt.gob.es/
-  • Precios de referencia de carburantes: Datos abiertos públicos oficiales del Ministerio para la Transición Ecológica y el Reto Demográfico a través del Geoportal de Gasolineras https://geoportalgasolineras.es/ y el servicio REST https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/
+  • Tablón Edictal Único del BOE (notificaciones y sanciones de tráfico): Búsqueda pública en https://www.boe.es/notificaciones/ y buscador oficial en https://www.boe.es/buscar/notificaciones.php
+  • Sede Electrónica de la Dirección General de Tráfico (DGT): Acceso informativo para consulta directa de sanciones en https://sede.dgt.gob.es/es/multas/
+  • Precios oficiales de carburantes: Datos abiertos del Ministerio para la Transición Ecológica y el Reto Demográfico accesibles en https://www.miteco.gob.es/es/energia/hidrocarburos-nuevos-combustibles/petroleo.html y servicio REST oficial documentado en https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/help
   --------------------------------------------------
   ```
 

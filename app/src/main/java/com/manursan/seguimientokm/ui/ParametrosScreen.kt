@@ -374,9 +374,9 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            "Fuente oficial: www.boe.es/tablon_edictal_unico",
+                            "Fuente oficial: www.boe.es/notificaciones",
                             style = MaterialTheme.typography.labelSmall, color = Palette.blue,
-                            modifier = Modifier.clickable { abrir("https://www.boe.es/tablon_edictal_unico/") },
+                            modifier = Modifier.clickable { abrir("https://www.boe.es/notificaciones/") },
                         )
                     }
                 }

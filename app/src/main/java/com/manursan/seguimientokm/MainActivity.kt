@@ -278,29 +278,29 @@ fun App(vm: MainViewModel) {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("• BOE - Tablón Edictal Único (TEU):", style = MaterialTheme.typography.labelMedium)
                         Text(
-                            "  https://www.boe.es/tablon_edictal_unico/",
+                            "  https://www.boe.es/notificaciones/",
                             style = MaterialTheme.typography.labelSmall,
                             color = Palette.blue,
                             modifier = Modifier.clickable {
-                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.boe.es/tablon_edictal_unico/")))
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.boe.es/notificaciones/")))
                             },
                         )
-                        Text("• Sede Electrónica DGT:", style = MaterialTheme.typography.labelMedium)
+                        Text("• Sede Electrónica DGT (Multas):", style = MaterialTheme.typography.labelMedium)
                         Text(
-                            "  https://sede.dgt.gob.es/",
+                            "  https://sede.dgt.gob.es/es/multas/",
                             style = MaterialTheme.typography.labelSmall,
                             color = Palette.blue,
                             modifier = Modifier.clickable {
-                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sede.dgt.gob.es/")))
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sede.dgt.gob.es/es/multas/")))
                             },
                         )
-                        Text("• Geoportal de Gasolineras (Ministerio):", style = MaterialTheme.typography.labelMedium)
+                        Text("• Datos oficiales de carburantes (MITECO):", style = MaterialTheme.typography.labelMedium)
                         Text(
-                            "  https://geoportalgasolineras.es/",
+                            "  https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/help",
                             style = MaterialTheme.typography.labelSmall,
                             color = Palette.blue,
                             modifier = Modifier.clickable {
-                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://geoportalgasolineras.es/")))
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/help")))
                             },
                         )
                     }
