@@ -13,7 +13,7 @@ pdf = os.path.getsize("/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/Manu
 fecha = datetime.date.today().strftime("%d/%m/%Y")
 
 # Enlaces del pie solo en la versión de GitHub Pages; la copia local no los lleva
-enlaces = "" if LOCAL else '<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a> · <a href="politica-de-privacidad.html">Política de Privacidad</a>'
+enlaces = '<br><a href="https://jmrodriguezs.github.io/SeguimientoRenting/politica-de-privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>' if LOCAL else '<br>Código fuente en <a href="https://github.com/manursan2026/seguimiento-renting">GitHub</a> · <a href="https://github.com/manursan2026/seguimiento-renting/releases">Todas las versiones</a> · <a href="politica-de-privacidad.html">Política de Privacidad</a>'
 
 html = f"""<!DOCTYPE html>
 <html lang="es">
@@ -152,9 +152,9 @@ html = f"""<!DOCTYPE html>
     <li>Pulsa <strong>Instalar</strong>. Al abrir la app por primera vez, ve a <strong>Ajustes</strong> y rellena los datos de tu contrato; hasta entonces no se pueden añadir mediciones.</li>
   </ol>
   <div class="nota" style="margin-top:16px">Si Play Protect muestra un aviso, elige <em>Instalar de todos modos</em>. La app no requiere cuenta ni contiene anuncios.</div>
-  <div class="nota" style="margin-top:12px">Seguimiento Renting es una aplicación independiente de uso privado y <strong>no representa a ninguna entidad pública</strong> (como el BOE o la DGT). Solo usa Internet para consultar datos públicos abiertos de combustible (<a href="https://geoportalgasolineras.es/" target="_blank" rel="noopener">geoportalgasolineras.es</a>) y notificaciones públicas en el <a href="https://www.boe.es/tablon_edictal_unico/" target="_blank" rel="noopener">Tablón Edictal Único del BOE</a>.</div>
+  <div class="nota" style="margin-top:12px">Seguimiento Renting es una aplicación independiente de uso privado y <strong>no representa a ninguna entidad pública</strong> (como el BOE o la DGT). Solo usa Internet para consultar datos públicos abiertos de combustible (<a href="https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/help" target="_blank" rel="noopener">servicio oficial de precios de carburantes</a>) y notificaciones públicas en el <a href="https://www.boe.es/notificaciones/" target="_blank" rel="noopener">Tablón Edictal Único del BOE</a>.</div>
   <div class="req">
-    <span>Android 8.0+</span><span>Versión {VERSION}</span><span>{apk:.0f} MB</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
+    <span>Android 8.0+</span><span>Versión {VERSION}</span><span>Sin anuncios</span><span>Datos solo en tu dispositivo</span>
   </div>
 </section>
 
@@ -179,7 +179,7 @@ html = f"""<!DOCTYPE html>
 </main>
 
 <footer>
-  <div class="wrap">Seguimiento Renting · versión {VERSION} · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Esta aplicación no representa a ninguna entidad pública. Fuentes oficiales: <a href="https://www.boe.es/tablon_edictal_unico/" target="_blank" rel="noopener">BOE (TEU)</a> · <a href="https://sede.dgt.gob.es/" target="_blank" rel="noopener">Sede DGT</a> · <a href="https://geoportalgasolineras.es/" target="_blank" rel="noopener">Geoportal de Gasolineras</a>{enlaces}</div>
+  <div class="wrap">Seguimiento Renting · versión {VERSION} · Página actualizada el {fecha}.<br>Las capturas mostradas utilizan datos ficticios de ejemplo.<br>Esta aplicación no representa a ninguna entidad pública. Fuentes oficiales: <a href="https://www.boe.es/notificaciones/" target="_blank" rel="noopener">BOE (TEU)</a> · <a href="https://sede.dgt.gob.es/es/multas/" target="_blank" rel="noopener">Sede DGT</a> · <a href="https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/help" target="_blank" rel="noopener">Precios de carburantes (Ministerio)</a>{enlaces}</div>
 </footer>
 
 </body>
