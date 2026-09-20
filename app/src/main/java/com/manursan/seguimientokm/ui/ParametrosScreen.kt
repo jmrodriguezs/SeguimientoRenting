@@ -390,7 +390,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
         // --- Precio de mercado ---
         var provOpen by remember { mutableStateOf(false) }
         var combOpen by remember { mutableStateOf(false) }
-        SectionCard(title = "Precio de mercado", subtitle = "Datos abiertos del Ministerio de Industria", icon = Icons.Default.LocalGasStation, accent = Palette.teal) {
+        SectionCard(title = "Precio de mercado", subtitle = "Datos abiertos oficiales (MITECO)", icon = Icons.Default.LocalGasStation, accent = Palette.teal) {
             ExposedDropdownMenuBox(expanded = combOpen, onExpandedChange = { combOpen = it }) {
                 OutlinedTextField(
                     value = FuelPrices.nombreCombustible(p.combustibleId), onValueChange = {}, readOnly = true,
@@ -426,13 +426,18 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
             ) {
                 Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
-                        "Aviso: Esta aplicación no representa a ningún ministerio ni organismo público. Los precios de referencia se obtienen del servicio de datos abiertos del Geoportal de Gasolineras del Ministerio.",
+                        "Aviso: Esta aplicación es independiente y no representa a ningún ministerio ni organismo público. Los precios de referencia se obtienen del servicio público de datos abiertos del Ministerio para la Transición Ecológica y el Reto Demográfico (MITECO).",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        "Fuente oficial: geoportalgasolineras.es",
+                        "Fuente oficial: sedeaplicaciones.minetur.gob.es",
                         style = MaterialTheme.typography.labelSmall, color = Palette.blue,
-                        modifier = Modifier.clickable { abrir("https://geoportalgasolineras.es/") },
+                        modifier = Modifier.clickable { abrir("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/help") },
+                    )
+                    Text(
+                        "Portal del Ministerio: www.miteco.gob.es",
+                        style = MaterialTheme.typography.labelSmall, color = Palette.blue,
+                        modifier = Modifier.clickable { abrir("https://www.miteco.gob.es/es/energia/hidrocarburos-nuevos-combustibles/petroleo.html") },
                     )
                 }
             }

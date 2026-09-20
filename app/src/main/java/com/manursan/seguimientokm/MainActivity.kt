@@ -303,6 +303,14 @@ fun App(vm: MainViewModel) {
                                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/help")))
                             },
                         )
+                        Text(
+                            "  https://www.miteco.gob.es/es/energia/hidrocarburos-nuevos-combustibles/petroleo.html",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Palette.blue,
+                            modifier = Modifier.clickable {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.miteco.gob.es/es/energia/hidrocarburos-nuevos-combustibles/petroleo.html")))
+                            },
+                        )
                     }
                 }
             },

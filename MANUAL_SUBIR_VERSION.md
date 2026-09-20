@@ -31,8 +31,8 @@ En Android existen dos campos de versión dentro de [`app/build.gradle.kts`](app
        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
        minSdk = 26
        targetSdk = 36
-       versionCode = 6        // ⬅️ Incrementa en +1 respecto al anterior
-       versionName = "1.2.3"  // ⬅️ Actualiza el texto visible
+       versionCode = 7        // ⬅️ Incrementa en +1 respecto al anterior
+       versionName = "1.2.4"  // ⬅️ Actualiza el texto visible
        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
    }
    ```
