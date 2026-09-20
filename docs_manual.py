@@ -15,6 +15,9 @@ from PIL import Image as PILImage
 
 S = os.path.dirname(os.path.abspath(__file__))
 M = os.path.join(S, "manual")
+# Versión de la app, leída del build.gradle.kts
+import re
+VERSION = re.search(r'versionName = "([^"]+)"', open(os.path.join(S, "app", "build.gradle.kts")).read()).group(1)
 OUT = "/Users/manursan/Documents/PERSONALES/RENTING_PEUGEOT/Manual_Seguimiento_Renting.pdf"
 
 F = "/System/Library/Fonts/Supplemental/"
@@ -118,7 +121,7 @@ class Doc(BaseDocTemplate):
         canv.line(doc.leftMargin, A4[1] - 1.5*cm, A4[0] - doc.rightMargin, A4[1] - 1.5*cm)
         canv.setFont("Arial", 8); canv.setFillColor(GRIS)
         canv.drawString(doc.leftMargin, A4[1] - 1.35*cm, "Seguimiento Renting · Manual de usuario")
-        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión 1.2.3 · %s" % datetime.date.today().strftime("%d/%m/%Y"))
+        canv.drawRightString(A4[0] - doc.rightMargin, A4[1] - 1.35*cm, "Versión %s · %s" % (VERSION, datetime.date.today().strftime("%d/%m/%Y")))
         canv.drawCentredString(A4[0] / 2, 1.2*cm, str(doc.page))
         canv.restoreState()
     def afterFlowable(self, fl):
@@ -142,7 +145,7 @@ story += [Spacer(1, 2.2*cm), P("Seguimiento Renting", "title"), Spacer(1, 0.3*cm
 cover_tbl = Table([[shot("01_resumen_1", 4.4*cm), shot("30_proy_1", 4.4*cm), shot("20_rep_lista", 4.4*cm)]], colWidths=[5.2*cm]*3, hAlign="CENTER")
 cover_tbl.setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER")]))
 story += [cover_tbl, Spacer(1, 0.8*cm),
-          Paragraph("Versión 1.2.3 · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % datetime.date.today().strftime("%B %Y").capitalize(), st["cap"])]
+          Paragraph("Versión %s · %s · Todas las capturas de este manual usan datos ficticios de ejemplo." % (VERSION, datetime.date.today().strftime("%B %Y").capitalize()), st["cap"])]
 
 # ---------- Índice ----------
 toc = TableOfContents(); toc.levelStyles = [st["toc1"], st["toc2"]]; toc.dotsMinLevel = 0
