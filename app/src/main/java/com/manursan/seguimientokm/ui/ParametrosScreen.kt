@@ -64,6 +64,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -98,6 +99,7 @@ private fun marcable(n: String) = n.filter { it.isDigit() || it == '+' }
 fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (String) -> Unit) {
     val onSaved = { onMessage("Parámetros guardados") }
     val p = vm.data.params
+    var asistente by remember { mutableStateOf(false) }
 
     // Un campo de texto por parámetro; se reinician si cambian los datos guardados
     var contrato by remember(p) { mutableStateOf(p.contrato) }
@@ -127,19 +129,20 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
     val candidato: ContractParams? = runCatching {
         ContractParams(
             contrato = contrato.trim(),
-            vehiculo = vehiculo.trim(),
+            vehiculo = vehiculo.trim().ifBlank { ContractParams.VEHICULO_POR_DEFECTO },
             matricula = matricula.trim().uppercase().replace(" ", "").replace("-", ""),
             empresa = empresa.trim(), telefono1 = telefono1.trim(), telefono2 = telefono2.trim(), email = email.trim(),
             inicio = inicio,
             fin = fin,
             meses = Fmt.parseInt(meses)!!.also { require(it > 0) },
             kmAnio = Fmt.parseInt(kmAnio)!!.also { require(it > 0) },
-            cuotaMensual = d(cuota)!!,
-            cuotaSinIva = d(cuotaSinIva)!!,
-            repDanos = d(repDanos)!!,
-            deposito = d(deposito)!!,
-            eurKmNoRecorrido = d(eurNoRec)!!,
-            eurKmExceso = d(eurExceso)!!,
+            // Opcionales: sin cuota no hay costes y sin tarifas no hay liquidación estimada
+            cuotaMensual = d(cuota) ?: 0.0,
+            cuotaSinIva = d(cuotaSinIva) ?: ((d(cuota) ?: 0.0) / (1 + (d(iva)?.div(100) ?: 0.0))),
+            repDanos = d(repDanos) ?: 0.0,
+            deposito = d(deposito) ?: 0.0,
+            eurKmNoRecorrido = d(eurNoRec) ?: 0.0,
+            eurKmExceso = d(eurExceso) ?: 0.0,
             recargoExceso = d(recargo)!!,
             umbralLiquidacion = d(umbralLiq)!! / 100,
             umbralAjuste = d(umbralAj)!! / 100,
@@ -159,6 +162,27 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
         Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        // Alta guiada del contrato: solo en el primer arranque o tras borrar todos los datos
+        if (!p.configurado) {
+            SectionCard(
+                title = "¿Primera vez?",
+                subtitle = "Te pedimos los datos del contrato uno a uno, con explicaciones",
+                icon = Icons.Default.AutoAwesome,
+                accent = Palette.purple,
+            ) {
+                Button(onClick = { asistente = true }, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.AutoAwesome, contentDescription = null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Configurar paso a paso")
+                }
+                Text(
+                    "También puedes rellenar directamente el formulario completo que encontrarás más abajo. " +
+                        "Se recomienda completar todos los datos del contrato: los que falten dejan sin calcular la parte que depende de ellos.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
         SectionCard(title = "Apariencia", icon = Icons.Default.Palette, accent = Palette.amber) {
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 ThemeMode.entries.forEachIndexed { i, mode ->
@@ -475,12 +499,12 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
         SectionCard(title = "Cuotas", icon = Icons.Default.Paid, accent = Palette.pink) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NumberField("Cuota (IVA incl.)", cuota, { cuota = it }, Modifier.weight(1f), suffix = "€", isError = d(cuota) == null)
-                    NumberField("Cuota sin IVA", cuotaSinIva, { cuotaSinIva = it }, Modifier.weight(1f), suffix = "€", isError = d(cuotaSinIva) == null)
+                    NumberField("Cuota IVA incl. (opc.)", cuota, { cuota = it }, Modifier.weight(1f), suffix = "€", isError = cuota.isNotBlank() && d(cuota) == null)
+                    NumberField("Cuota sin IVA (opc.)", cuotaSinIva, { cuotaSinIva = it }, Modifier.weight(1f), suffix = "€", isError = cuotaSinIva.isNotBlank() && d(cuotaSinIva) == null)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NumberField("Rep. daños", repDanos, { repDanos = it }, Modifier.weight(1f), suffix = "€", isError = d(repDanos) == null)
-                    NumberField("Depósito", deposito, { deposito = it }, Modifier.weight(1f), suffix = "€", isError = d(deposito) == null)
+                    NumberField("Rep. daños", repDanos, { repDanos = it }, Modifier.weight(1f), suffix = "€", isError = repDanos.isNotBlank() && d(repDanos) == null)
+                    NumberField("Depósito", deposito, { deposito = it }, Modifier.weight(1f), suffix = "€", isError = deposito.isNotBlank() && d(deposito) == null)
                 }
             }
         }
@@ -488,8 +512,8 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
         SectionCard(title = "Liquidación de kilómetros", icon = Icons.Default.Gavel, accent = Palette.purple) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NumberField("€ / km no recorrido", eurNoRec, { eurNoRec = it }, Modifier.weight(1f), isError = d(eurNoRec) == null)
-                    NumberField("€ / km exceso", eurExceso, { eurExceso = it }, Modifier.weight(1f), isError = d(eurExceso) == null)
+                    NumberField("€/km no recorrido (opc.)", eurNoRec, { eurNoRec = it }, Modifier.weight(1f), isError = eurNoRec.isNotBlank() && d(eurNoRec) == null)
+                    NumberField("€/km exceso (opc.)", eurExceso, { eurExceso = it }, Modifier.weight(1f), isError = eurExceso.isNotBlank() && d(eurExceso) == null)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     NumberField("Umbral abono", umbralLiq, { umbralLiq = it }, Modifier.weight(1f), suffix = "%", isError = d(umbralLiq) == null)
@@ -565,6 +589,18 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
         }
 
         Spacer(Modifier.height(16.dp))
+    }
+
+    if (asistente) {
+        AsistenteContratoDialog(
+            inicial = p,
+            onDismiss = { asistente = false },
+            onFinish = { nuevos ->
+                vm.updateParams(nuevos)
+                asistente = false
+                onMessage("Contrato guardado")
+            },
+        )
     }
 }
 

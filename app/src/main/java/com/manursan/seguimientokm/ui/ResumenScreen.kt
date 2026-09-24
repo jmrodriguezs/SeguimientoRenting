@@ -164,7 +164,9 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                 icon = Icons.Default.Calculate,
                 accent = Palette.amber,
             ) {
-                if (ultima != null && ultima.km > 0) {
+                if (!p.tieneCostes) {
+                    FaltaDato("Añade la cuota mensual en Ajustes para calcular el coste por kilómetro.")
+                } else if (ultima != null && ultima.km > 0) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         MiniStat("Renting", Fmt.eur(ck.renting, 4), Modifier.weight(1f))
                         MiniStat("Combustible", Fmt.eur(ck.combustible, 4), Modifier.weight(1f), valueColor = accentText(Palette.orange))
@@ -199,6 +201,9 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                 icon = Icons.Default.Gavel,
                 accent = Palette.purple,
             ) {
+                if (!p.tieneTarifas) {
+                    FaltaDato("Sin las tarifas por kilómetro del contrato (Ajustes → Liquidación) no se puede estimar el abono ni el cargo.")
+                }
                 StatRow("Km estimados a fin de contrato", Fmt.km(l.kmProyectados), emphasized = true, hint = "A tu ritmo actual; se compara con los contratados")
                 StatRow("Umbral abono (${Fmt.pct(p.umbralLiquidacion, 0)})", Fmt.km(l.umbralAbono))
                 StatRow("Km contratados (cargo)", Fmt.km(l.umbralCargo))
@@ -272,6 +277,7 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
         item {
             val c = r.coste
             SectionCard(title = "Coste total del contrato", subtitle = "Proyección a ${Fmt.date(p.fin)}", icon = Icons.Default.Paid, accent = Palette.pink) {
+                if (!p.tieneCostes) FaltaDato("Sin cuota mensual solo se suman el combustible y los otros gastos.")
                 StatRow("Cuotas (${p.meses} × ${Fmt.eur(p.cuotaMensual)})", Fmt.eur(c.cuotas))
                 StatRow("Cuota irregular inicial", Fmt.eur(c.cuotaIrregular), hint = "Prorrateo desde ${Fmt.date(p.inicio)}")
                 StatRow("Combustible proyectado", Fmt.eur(c.combustibleProyectado))
@@ -293,6 +299,7 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                 icon = Icons.Default.Receipt,
                 accent = Palette.teal,
             ) {
+                if (!p.tieneCostes) FaltaDato("El IVA de las cuotas necesita la cuota mensual (Ajustes).")
                 StatRow("Base cuotas", Fmt.eur(c.baseCuotas))
                 StatRow("IVA cuotas", Fmt.eur(c.ivaCuotas))
                 StatRow("IVA cuota irregular", Fmt.eur(c.ivaCuotaIrregular))
@@ -378,3 +385,11 @@ private fun ProgressLine(label: String, value: String, fraction: Float, color: C
         strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
     )
 }
+
+/** Aviso de que falta un dato opcional del contrato y por eso no hay cálculo. */
+@Composable
+private fun FaltaDato(texto: String) = Text(
+    texto,
+    style = MaterialTheme.typography.bodySmall,
+    color = MaterialTheme.colorScheme.onSurfaceVariant,
+)

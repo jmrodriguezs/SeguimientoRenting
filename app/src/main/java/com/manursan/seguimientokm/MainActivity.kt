@@ -104,7 +104,8 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(vm: MainViewModel) {
-    var tab by rememberSaveable { mutableStateOf(Tab.Resumen) }
+    // Sin contrato (primer arranque o tras borrarlo todo) se empieza en Ajustes, que es donde se configura
+    var tab by rememberSaveable { mutableStateOf(if (vm.data.params.configurado) Tab.Resumen else Tab.Ajustes) }
     var menuOpen by remember { mutableStateOf(false) }
     var showLegalDialog by remember { mutableStateOf(false) }
     var measurementEdit by remember { mutableStateOf<MeasurementEdit?>(null) }

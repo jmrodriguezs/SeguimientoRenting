@@ -23,6 +23,7 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
 - **Otros gastos** (peajes, parking, lavado, multas, mantenimiento, AdBlue): entran en el coste por km y en el coste de uso hasta hoy.
 - **Foto del cuentakilómetros** en cada medición (cámara o galería), reducida a 1600 px.
 - **Foto del tique de repostaje** con lectura automática (OCR de ML Kit en el dispositivo, sin enviar la imagen): rellena fecha, importe, precio/litro y litros para revisarlos antes de guardar.
+- **Configurar paso a paso**: asistente de seis pasos para dar de alta el contrato en el primer arranque (o tras borrar los datos); la app se abre en Ajustes mientras no haya contrato.
 - **Recordatorios**: notificación mensual para anotar los km y aviso 30 días antes del ajuste anual.
 - **Próximo ajuste anual**: fecha, km previstos, desviación y si cae dentro de la banda ±10 %.
 - **Widget** de pantalla de inicio con km actuales, desviación y margen diario.

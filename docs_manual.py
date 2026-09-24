@@ -181,11 +181,34 @@ story += [P("La aplicación se distribuye como un fichero <b>SeguimientoRenting.
           note("En dispositivos Xiaomi (HyperOS/MIUI) puede aparecer además un permiso propio de <i>acceso a la red</i> para la aplicación. Si se deniega, "
                "las consultas de precio de mercado y de multas fallarán hasta que se conceda en Ajustes → Aplicaciones → Seguimiento Renting.", NARANJA, "Aviso")]
 story += H2("2.2 Primer arranque")
-story += [P("La primera vez la aplicación está <b>vacía</b>: no hay contrato ni mediciones. Las pestañas muestran el aviso <i>Contrato sin configurar</i> y no "
-            "es posible anotar datos hasta que el contrato tenga fechas válidas, plazo y kilómetros anuales. Tienes dos formas de empezar:"),
-          bullets(["<b>Introducir el contrato</b> en <i>Ajustes → Contrato</i>: fechas, plazo, km/año, cuotas y tarifas (capítulo 9.6).",
+story += [P("La primera vez la aplicación está <b>vacía</b>: no hay contrato ni mediciones, así que se abre directamente en la pestaña <b>Ajustes</b>, que es donde se configura. "
+            "Las demás pestañas muestran el aviso <i>Contrato sin configurar</i> y no permiten anotar datos hasta que el contrato tenga fechas válidas, plazo y kilómetros anuales. "
+            "Tienes tres formas de empezar:"),
+          bullets(["<b>Configurar paso a paso</b> (recomendado): el asistente te pide los datos uno a uno con explicaciones (capítulo 2.3).",
+                   "<b>Introducir el contrato</b> en <i>Ajustes → Contrato</i>: fechas, plazo, km/año, cuotas y tarifas (capítulo 9.6).",
                    "<b>Restaurar una copia de seguridad</b> (menú ⋮ → <i>Restaurar copia de seguridad</i>) si vienes de otro dispositivo o de una instalación anterior (capítulo 10.4)."]),
           figrow([("01_resumen_1", "Resumen con el contrato configurado"), ("10_km_lista", "Kilómetros con mediciones"), ("40_ajustes_1", "Ajustes")])]
+
+story += H2("2.3 Configurar paso a paso")
+story += [P("Mientras no haya contrato, la pestaña Ajustes empieza con la tarjeta <b>¿Primera vez?</b> y el botón <b>Configurar paso a paso</b>. El asistente reparte los datos en seis pasos, "
+            "explica cada bloque y no deja avanzar si algo no cuadra (por ejemplo, si el plazo no coincide con las fechas). Al terminar, pulsa <b>Guardar</b> y el contrato queda creado."),
+          table([["Paso", "Qué se pide"],
+                 ["1. Vehículo", "Nº de contrato, vehículo y matrícula. Todo opcional."],
+                 ["2. Compañía de renting", "Nombre, teléfonos y correo para contactar con un toque. Opcional."],
+                 ["3. Plazo y kilómetros", "Fecha de inicio, plazo en meses (la fecha de fin se calcula sola) y km al año."],
+                 ["4. Cuotas", "Cuota mensual con IVA, cuota sin IVA (se calcula sola), reparación de daños y depósito. Todo opcional."],
+                 ["5. Liquidación", "Abono por km no recorrido, cargo por km de exceso, umbrales y recargo. Opcional."],
+                 ["6. Combustible e IVA", "Combustible del vehículo, provincia, tipo de IVA y porcentaje de deducción."]],
+                [4.2*cm, 12.2*cm]),
+          P("<b>Qué es obligatorio y qué no.</b> Solo hacen falta tres datos: la <b>fecha de inicio</b>, el <b>plazo</b> (o la fecha de fin) y los <b>kilómetros al año</b>; sin ellos no hay "
+            "contrato que seguir. El resto es opcional, con la consecuencia de que lo que dependa de un dato ausente no se calcula:"),
+          bullets(["Sin <b>cuota mensual</b> no hay coste por kilómetro, coste total del contrato ni IVA; el seguimiento de kilómetros funciona igual.",
+                   "Sin <b>tarifas por kilómetro</b> (abono y exceso) no se estiman el abono ni el cargo de la liquidación.",
+                   "Sin <b>vehículo</b> se guarda el nombre «Coche de Renting»; sin datos de la compañía no hay botones de llamada ni de correo.",
+                   "El combustible es <b>Gasolina 95 E5</b> salvo que elijas otro, y la provincia, toda España."]),
+          note("Aun así se recomienda rellenar todos los datos del contrato: es lo que permite aprovechar la aplicación entera. Los que falten pueden añadirse en cualquier momento "
+               "en <i>Ajustes → Contrato</i>. La tarjeta del asistente solo aparece cuando no hay contrato (primer arranque o después de borrar todos los datos).", AZUL, "Nota"),
+          figrow([("48_asistente_1", "Ajustes en el primer arranque"), ("48_asistente_3", "Paso 3: plazo y kilómetros"), ("48_asistente_4", "Paso 4: cuotas, todas opcionales")])]
 
 # ---------- 3. Conceptos ----------
 story += H1("3. Conceptos clave")
@@ -308,10 +331,13 @@ story += [P("Elige con qué ritmo se proyecta hasta el fin del contrato:"),
                  ["Manual", "Un valor de km/día que escribes y aplicas.", "Para simular: «¿qué pasa si hago 30 km/día a partir de ahora?»"]],
                 [2.4*cm, 7*cm, 7*cm]),
           P("Debajo se muestran el ritmo aplicado, el teórico del contrato, el combustible estimado por km, los km estimados a fin de contrato y el abono o cargo resultante. "
-            "El escenario elegido se usa en todas las pantallas y en el informe.")]
+            "El escenario elegido se usa en todas las pantallas y en el informe."),
+          P("Si aún no tienes 180 días de mediciones, al pulsar <b>6 meses</b> la aplicación te indica cuántos días llevas y cuántos faltan, y sigue aplicando el escenario anterior. "
+            "El dato <i>Últimos 6 meses</i> también muestra los días que faltan.")]
 story += H2("8.2 Gráfica")
 story += [P("Puntos verdes: tus mediciones. Recta gris: km teóricos. Línea morada discontinua: proyección desde la última medida. Líneas punteadas: umbrales de abono (turquesa) y de cargo (rojo). "
-            "Si los puntos van por debajo de la recta, vas por debajo del ritmo contratado.")]
+            "Si los puntos van por debajo de la recta, vas por debajo del ritmo contratado."),
+          P("Con menos de dos mediciones no hay evolución que dibujar: en su lugar aparece un aviso indicando qué falta.")]
 story += H2("8.3 Proyección mensual")
 story += [P("Tabla con los km previstos el día 15 de cada mes hasta el fin del contrato, los teóricos, la desviación y la gasolina acumulada estimada."),
           figrow([("30_proy_1", "Escenario y resultado"), ("31_proy_2", "Gráfica"), ("32_proy_3", "Tabla mensual")])]
@@ -340,7 +366,9 @@ story += H2("9.5 Precio de mercado")
 story += [P("<b>Combustible</b> de tu vehículo (gasolinas 95 y 98 en todas sus variantes, gasóleo A y Premium, diésel y gasolina renovables, biodiésel, bioetanol, GLP, GNC, GNL e hidrógeno) y <b>provincia</b> donde sueles repostar (o <i>Toda España</i>). Ambos se usan para obtener el precio medio de mercado. Por defecto es Gasolina 95 E5; elegir tu provincia hace la consulta más rápida y más representativa de lo que pagas. Para GNC, GNL e hidrógeno el precio publicado es por kilogramo."),
           figrow([("45_ajustes_mercado", "Combustible y provincia para el precio de mercado")], w=7*cm)]
 story += H2("9.6 Contrato, cuotas, liquidación e IVA")
-story += [P("Aquí se introducen los parámetros que alimentan todos los cálculos. Se guardan al pulsar <b>Guardar</b>; <b>Descartar cambios</b> vuelve a los valores guardados."),
+story += [P("Aquí se introducen los parámetros que alimentan todos los cálculos. Se guardan al pulsar <b>Guardar</b>; <b>Descartar cambios</b> vuelve a los valores guardados. "
+            "Solo son obligatorios el <b>inicio</b>, el <b>plazo</b> (o la fecha de fin) y los <b>km/año</b>; los campos marcados como <i>opc.</i> pueden dejarse vacíos, "
+            "y en ese caso la aplicación indica en cada tarjeta qué cálculo no puede hacer (véase 2.3)."),
           table([["Bloque", "Campos"],
                  ["Contrato", "Nº de contrato, vehículo, matrícula, compañía de renting con sus teléfonos y correo, inicio (puesta a disposición), fin, plazo en meses y km/año. Debajo se muestran los km contratados resultantes."],
                  ["Cuotas", "Cuota mensual con IVA, cuota sin IVA, parte de reparación de daños (informativa) y depósito en garantía (recuperable, no se cuenta como coste)."],

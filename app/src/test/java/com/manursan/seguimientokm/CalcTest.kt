@@ -359,3 +359,39 @@ class TicketOcrTest {
         assertEquals(null, d.litros)
     }
 }
+
+class ContratoMinimoTest {
+    /** Solo fechas, plazo y km/año: la app calcula el seguimiento y no da errores por falta de cuota o tarifas. */
+    private fun minimo() = ContractParams.vacio(LocalDate.of(2026, 1, 1)).copy(
+        inicio = LocalDate.of(2026, 1, 1), fin = LocalDate.of(2029, 1, 1), meses = 36, kmAnio = 15000,
+    )
+
+    @Test fun contratoSinCuotaNiTarifasEsValido() {
+        val p = minimo()
+        assertEquals(emptyList<String>(), p.errores())
+        assert(p.configurado)
+        assert(!p.tieneCostes)
+        assert(!p.tieneTarifas)
+        assertEquals(45000.0, p.kmContratados, 1e-9)
+    }
+
+    @Test fun calculaKilometrosSinCostes() {
+        val data = AppData(
+            params = minimo(),
+            measurements = listOf(
+                Measurement(fecha = LocalDate.of(2026, 4, 1), km = 3000),
+                Measurement(fecha = LocalDate.of(2026, 7, 1), km = 6500),
+            ),
+        )
+        val r = Calc.compute(data, LocalDate.of(2026, 7, 1))
+        assertEquals(6500.0, r.seguimiento.kmUltima, 1e-9)
+        assertEquals(0.0, r.coste.cuotas, 1e-9)          // sin cuota no hay coste de renting
+        assertEquals(0.0, r.liquidacion.abonoCargo, 1e-9) // sin tarifas no hay abono ni cargo
+        assert(r.proyeccion.isNotEmpty())                 // la proyección sí se calcula
+    }
+
+    @Test fun laCuotaSigueValidandoseSiSeIndica() {
+        val p = minimo().copy(cuotaMensual = 350.0, cuotaSinIva = 100.0)
+        assert(p.errores().any { it.contains("no coincide") || it.contains("no cuadra") })
+    }
+}

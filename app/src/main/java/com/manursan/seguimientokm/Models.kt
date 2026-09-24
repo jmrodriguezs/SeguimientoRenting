@@ -49,6 +49,12 @@ data class ContractParams(
     /** true si hay datos mínimos para calcular (fechas válidas y km contratados). */
     val configurado: Boolean get() = kmAnio > 0 && meses > 0 && fin.isAfter(inicio)
 
+    /** true si hay cuota: sin ella no se calculan coste por km, coste total ni IVA. */
+    val tieneCostes: Boolean get() = cuotaMensual > 0
+
+    /** true si hay tarifas de liquidación: sin ellas no hay abono ni cargo estimados. */
+    val tieneTarifas: Boolean get() = eurKmNoRecorrido > 0 || eurKmExceso > 0
+
     /** Errores de coherencia entre parámetros; lista vacía si todo es válido. */
     fun errores(): List<String> {
         val e = mutableListOf<String>()
@@ -60,9 +66,10 @@ data class ContractParams(
         }
         if (meses <= 0) e += "El plazo debe ser mayor que 0."
         if (kmAnio <= 0) e += "Los km/año deben ser mayores que 0."
-        if (cuotaMensual <= 0) e += "La cuota mensual debe ser mayor que 0."
+        // La cuota es opcional: sin ella no hay costes, pero sí seguimiento de kilómetros
+        if (cuotaMensual < 0) e += "La cuota mensual no puede ser negativa."
         if (cuotaSinIva > cuotaMensual) e += "La cuota sin IVA no puede superar la cuota con IVA."
-        if (cuotaSinIva > 0 && kotlin.math.abs(cuotaSinIva * (1 + tipoIva) - cuotaMensual) > 1.0)
+        if (cuotaMensual > 0 && cuotaSinIva > 0 && kotlin.math.abs(cuotaSinIva * (1 + tipoIva) - cuotaMensual) > 1.0)
             e += "Cuota sin IVA × (1 + IVA) = ${"%.2f".format(cuotaSinIva * (1 + tipoIva))} €, no coincide con la cuota con IVA (${"%.2f".format(cuotaMensual)} €)."
         if (repDanos > cuotaSinIva) e += "La parte de reparación de daños no puede superar la cuota sin IVA."
         if (tipoIva !in 0.0..1.0 || pctDeduccion !in 0.0..1.0 || umbralLiquidacion !in 0.0..1.0 || umbralAjuste !in 0.0..1.0)
@@ -72,6 +79,9 @@ data class ContractParams(
     }
 
     companion object {
+        /** Nombre que se guarda cuando no se indica el vehículo. */
+        const val VEHICULO_POR_DEFECTO = "Coche de Renting"
+
         /** Contrato en blanco: sin datos propios; solo quedan los valores normativos (IVA, deducción, umbrales). */
         fun vacio(hoy: LocalDate = LocalDate.now()) = ContractParams(
             contrato = "", vehiculo = "", matricula = "", empresa = "", telefono1 = "", telefono2 = "", email = "",

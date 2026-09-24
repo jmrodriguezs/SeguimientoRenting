@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.graphics.RectangleShape
+import java.time.temporal.ChronoUnit
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,10 +57,14 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
     var kmDiaText by remember(p.kmDiaProyeccion) { mutableStateOf(p.kmDiaProyeccion?.let { Fmt.dec(it, 2) } ?: Fmt.dec(s.kmDiaRealAcumulado, 2)) }
     val kmDiaParsed = Fmt.parseDouble(kmDiaText)
 
+    // El ritmo de los últimos 6 meses necesita 180 días de historial; si faltan, se explica al pulsarlo
+    val diasHistorial = ChronoUnit.DAYS.between(p.inicio, s.fechaUltima)
+    val faltanDias = (180 - diasHistorial).coerceAtLeast(0)
+    var avisoReciente by remember { mutableStateOf(false) }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(padding),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
             SectionCard(title = "Escenario", subtitle = "Ritmo de km/día con el que se proyecta hasta el fin de contrato", icon = Icons.Default.Insights, accent = Palette.purple) {
@@ -65,16 +72,30 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
                     ModoProyeccion.entries.forEachIndexed { i, m ->
                         SegmentedButton(
                             selected = modo == m,
-                            enabled = m != ModoProyeccion.Reciente || s.kmDiaReciente != null,
-                            onClick = { vm.setProyeccion(m, if (m == ModoProyeccion.Manual) (p.kmDiaProyeccion ?: Math.round(s.kmDiaRealAcumulado * 100) / 100.0) else p.kmDiaProyeccion) },
+                            onClick = {
+                                if (m == ModoProyeccion.Reciente && s.kmDiaReciente == null) {
+                                    avisoReciente = true
+                                } else {
+                                    avisoReciente = false
+                                    vm.setProyeccion(m, if (m == ModoProyeccion.Manual) (p.kmDiaProyeccion ?: Math.round(s.kmDiaRealAcumulado * 100) / 100.0) else p.kmDiaProyeccion)
+                                }
+                            },
                             shape = SegmentedButtonDefaults.itemShape(index = i, count = ModoProyeccion.entries.size),
                         ) { Text(m.label, maxLines = 1, style = MaterialTheme.typography.labelMedium) }
                     }
                 }
+                if (avisoReciente) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "El ritmo de los últimos 6 meses necesita 180 días de mediciones: llevas $diasHistorial y faltan $faltanDias. " +
+                            "Mientras tanto puedes usar Media o Manual.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 Spacer(Modifier.height(6.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     MiniStat("Media acumulada", "${Fmt.dec(s.kmDiaRealAcumulado, 2)} km/día", Modifier.weight(1f))
-                    MiniStat("Últimos 6 meses", s.kmDiaReciente?.let { "${Fmt.dec(it, 2)} km/día" } ?: "— (faltan datos)", Modifier.weight(1f))
+                    MiniStat("Últimos 6 meses", s.kmDiaReciente?.let { "${Fmt.dec(it, 2)} km/día" } ?: "— (faltan $faltanDias días)", Modifier.weight(1f))
                 }
                 if (modo == ModoProyeccion.Manual) {
                     Spacer(Modifier.height(8.dp))
@@ -100,12 +121,25 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
                     valueColor = if (r.liquidacion.abonoCargo < 0) neg else pos,
                 )
             }
+            Spacer(Modifier.height(12.dp))
         }
 
         item {
             SectionCard(title = "Kilómetros frente al contrato", subtitle = "Puntos: mediciones · recta: km teóricos · discontinua: proyección", icon = Icons.Default.ShowChart, accent = Palette.green) {
-                KmChart(r)
+                if (r.reales.size < 2) {
+                    Text(
+                        if (r.reales.isEmpty()) "Todavía no has anotado ninguna medición: la gráfica aparecerá en cuanto registres la primera lectura del cuentakilómetros."
+                        else "Con una sola medición no hay evolución que dibujar. Anota otra lectura y aquí verás tus kilómetros frente a los del contrato.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp, horizontal = 8.dp),
+                    )
+                } else {
+                    KmChart(r)
+                }
             }
+            Spacer(Modifier.height(12.dp))
         }
 
         item {
@@ -120,17 +154,26 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Spacer(Modifier.height(8.dp))
         }
 
+        // La tabla se compone fila a fila para que la lista solo dibuje lo visible
         item {
-            Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                    ProjHeader()
-                    r.proyeccion.forEachIndexed { i, row ->
-                        Box(Modifier.background(if (i % 2 == 1) tint(Palette.purple, 0.06f) else Color.Transparent, RoundedCornerShape(8.dp))) {
-                            ProjRow(row, pos, neg)
-                        }
-                    }
+            Box(
+                Modifier.fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+                    .padding(horizontal = 12.dp).padding(top = 8.dp),
+            ) { ProjHeader() }
+        }
+        itemsIndexed(r.proyeccion, key = { _, row -> row.fecha.toString() }) { i, row ->
+            val ultima = i == r.proyeccion.lastIndex
+            Box(
+                Modifier.fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface, if (ultima) RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp) else RectangleShape)
+                    .padding(horizontal = 12.dp).padding(bottom = if (ultima) 8.dp else 0.dp),
+            ) {
+                Box(Modifier.background(if (i % 2 == 1) tint(Palette.purple, 0.06f) else Color.Transparent, RoundedCornerShape(8.dp))) {
+                    ProjRow(row, pos, neg)
                 }
             }
         }
