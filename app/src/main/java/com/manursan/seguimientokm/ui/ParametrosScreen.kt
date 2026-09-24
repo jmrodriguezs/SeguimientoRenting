@@ -221,7 +221,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
             context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${marcable(numero)}")))
         }
         val nombreEmpresa = p.empresa.ifBlank { "Compañía de renting" }
-        SectionCard(title = nombreEmpresa, subtitle = if (p.empresa.isBlank()) "Datos de contacto de tu compañía de renting" else "Contacto", icon = Icons.Default.Phone, accent = Palette.green) {
+        SectionCard(title = nombreEmpresa, subtitle = "Datos de contacto de la empresa de renting", icon = Icons.Default.Phone, accent = Palette.green) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (p.telefono1.isBlank() && p.telefono2.isBlank() && p.email.isBlank()) {
                     Text("Añade el nombre, los teléfonos y el correo de tu compañía en el bloque Contrato (más abajo) para llamar o escribir con un toque.",

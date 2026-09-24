@@ -346,7 +346,7 @@ story += [P("Tabla con los km previstos el día 15 de cada mes hasta el fin del 
 story += H1("9. Pestaña Ajustes")
 story += H2("9.1 Apariencia")
 story += [P("<b>Sistema</b> (sigue el tema del dispositivo), <b>Claro</b> u <b>Oscuro</b>. El cambio es inmediato y se recuerda.")]
-story += H2("9.2 Compañía de renting")
+story += H2("9.2 Datos de contacto de la empresa de renting")
 story += [P("Tarjeta de contacto con tu compañía de renting: botones con los teléfonos que hayas configurado y un botón de correo que abre un mensaje con el número de contrato en el asunto. "
             "El nombre de la compañía, los teléfonos y el correo se introducen en el bloque <i>Contrato</i> (apartado 9.6); mientras estén vacíos, la tarjeta lo indica. "
             "Al pulsar un teléfono se abre el marcador del sistema con el número ya escrito; solo tienes que confirmar la llamada. La aplicación no necesita permiso de teléfono.")]

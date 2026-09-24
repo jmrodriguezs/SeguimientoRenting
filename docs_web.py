@@ -139,7 +139,7 @@ html = f"""<!DOCTYPE html>
     <div class="card"><h3><i style="background:#3949AB">🔔</i>Recordatorios y widget</h3><p>Aviso mensual para anotar los kilómetros, aviso del ajuste anual y widget en la pantalla de inicio con el estado actual.</p></div>
     <div class="card"><h3><i style="background:#8E24AA">🌙</i>Modo oscuro</h3><p>Tema claro, oscuro o según el sistema, con una interfaz colorida y legible.</p></div>
     <div class="card"><h3><i style="background:#00897B">💾</i>Copias de seguridad</h3><p>Guarda y restaura una copia completa (contrato, mediciones, repostajes, gastos y fotos) en un único fichero ZIP.</p></div>
-    <div class="card"><h3><i style="background:#6D4C41">📞</i>Contacto con tu empresa</h3><p>Teléfonos y correo de tu compañía de renting a un toque, configurables en Ajustes.</p></div>
+    <div class="card"><h3><i style="background:#6D4C41">📞</i>Datos de contacto de la empresa de renting</h3><p>Teléfonos y correo de tu compañía de renting a un toque, configurables en Ajustes.</p></div>
   </div>
 </section>
 
