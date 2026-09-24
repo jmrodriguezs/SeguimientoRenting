@@ -136,9 +136,9 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
             fin = fin,
             meses = Fmt.parseInt(meses)!!.also { require(it > 0) },
             kmAnio = Fmt.parseInt(kmAnio)!!.also { require(it > 0) },
-            // Opcionales: sin cuota no hay costes y sin tarifas no hay liquidación estimada
-            cuotaMensual = d(cuota) ?: 0.0,
-            cuotaSinIva = d(cuotaSinIva) ?: ((d(cuota) ?: 0.0) / (1 + (d(iva)?.div(100) ?: 0.0))),
+            cuotaMensual = d(cuota)!!.also { require(it > 0) },
+            // Opcionales: sin tarifas no hay liquidación estimada; sin los demás, sus cálculos quedan a cero
+            cuotaSinIva = d(cuotaSinIva) ?: (d(cuota)!! / (1 + (d(iva)?.div(100) ?: 0.0))),
             repDanos = d(repDanos) ?: 0.0,
             deposito = d(deposito) ?: 0.0,
             eurKmNoRecorrido = d(eurNoRec) ?: 0.0,
@@ -154,7 +154,13 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
             pctDeduccion = d(deduccion)!! / 100,
         )
     }.getOrNull()
-    val errores = candidato?.errores() ?: listOf("Hay campos vacíos o con valores no numéricos.")
+    // Si ni siquiera se puede construir el contrato, se dice qué campo obligatorio falta
+    val errores = candidato?.errores() ?: buildList {
+        if (Fmt.parseInt(meses).let { it == null || it <= 0 }) add("El plazo en meses es obligatorio.")
+        if (Fmt.parseInt(kmAnio).let { it == null || it <= 0 }) add("Los kilómetros al año son obligatorios.")
+        if (d(cuota).let { it == null || it <= 0 }) add("La cuota mensual con IVA es obligatoria.")
+        if (isEmpty()) add("Hay campos vacíos o con valores no numéricos.")
+    }
     val nuevo = candidato?.takeIf { errores.isEmpty() }
     val cambiado = nuevo != null && nuevo != p
 
@@ -499,7 +505,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
         SectionCard(title = "Cuotas", icon = Icons.Default.Paid, accent = Palette.pink) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NumberField("Cuota IVA incl. (opc.)", cuota, { cuota = it }, Modifier.weight(1f), suffix = "€", isError = cuota.isNotBlank() && d(cuota) == null)
+                    NumberField("Cuota IVA incl.", cuota, { cuota = it }, Modifier.weight(1f), suffix = "€", isError = d(cuota) == null || d(cuota)!! <= 0)
                     NumberField("Cuota sin IVA (opc.)", cuotaSinIva, { cuotaSinIva = it }, Modifier.weight(1f), suffix = "€", isError = cuotaSinIva.isNotBlank() && d(cuotaSinIva) == null)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

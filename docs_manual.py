@@ -196,14 +196,14 @@ story += [P("Mientras no haya contrato, la pestaña Ajustes empieza con la tarje
                  ["1. Vehículo", "Nº de contrato, vehículo y matrícula. Todo opcional."],
                  ["2. Compañía de renting", "Nombre, teléfonos y correo para contactar con un toque. Opcional."],
                  ["3. Plazo y kilómetros", "Fecha de inicio, plazo en meses (la fecha de fin se calcula sola) y km al año."],
-                 ["4. Cuotas", "Cuota mensual con IVA, cuota sin IVA (se calcula sola), reparación de daños y depósito. Todo opcional."],
+                 ["4. Cuotas", "Cuota mensual con IVA (obligatoria); la cuota sin IVA se calcula sola y la reparación de daños y el depósito son opcionales."],
                  ["5. Liquidación", "Abono por km no recorrido, cargo por km de exceso, umbrales y recargo. Opcional."],
                  ["6. Combustible e IVA", "Combustible del vehículo, provincia, tipo de IVA y porcentaje de deducción."]],
                 [4.2*cm, 12.2*cm]),
-          P("<b>Qué es obligatorio y qué no.</b> Solo hacen falta tres datos: la <b>fecha de inicio</b>, el <b>plazo</b> (o la fecha de fin) y los <b>kilómetros al año</b>; sin ellos no hay "
-            "contrato que seguir. El resto es opcional, con la consecuencia de que lo que dependa de un dato ausente no se calcula:"),
-          bullets(["Sin <b>cuota mensual</b> no hay coste por kilómetro, coste total del contrato ni IVA; el seguimiento de kilómetros funciona igual.",
-                   "Sin <b>tarifas por kilómetro</b> (abono y exceso) no se estiman el abono ni el cargo de la liquidación.",
+          P("<b>Qué es obligatorio y qué no.</b> Solo hacen falta cuatro datos: la <b>fecha de inicio</b>, el <b>plazo</b> (o la fecha de fin), los <b>kilómetros al año</b> y la "
+            "<b>cuota mensual con IVA</b>. El resto es opcional, con la consecuencia de que lo que dependa de un dato ausente no se calcula:"),
+          bullets(["Sin <b>tarifas por kilómetro</b> (abono y exceso) no se estiman el abono ni el cargo de la liquidación.",
+                   "La <b>cuota sin IVA</b> se deduce de la cuota con IVA; la reparación de daños y el depósito pueden dejarse vacíos.",
                    "Sin <b>vehículo</b> se guarda el nombre «Coche de Renting»; sin datos de la compañía no hay botones de llamada ni de correo.",
                    "El combustible es <b>Gasolina 95 E5</b> salvo que elijas otro, y la provincia, toda España."]),
           note("Aun así se recomienda rellenar todos los datos del contrato: es lo que permite aprovechar la aplicación entera. Los que falten pueden añadirse en cualquier momento "
@@ -367,7 +367,7 @@ story += [P("<b>Combustible</b> de tu vehículo (gasolinas 95 y 98 en todas sus 
           figrow([("45_ajustes_mercado", "Combustible y provincia para el precio de mercado")], w=7*cm)]
 story += H2("9.6 Contrato, cuotas, liquidación e IVA")
 story += [P("Aquí se introducen los parámetros que alimentan todos los cálculos. Se guardan al pulsar <b>Guardar</b>; <b>Descartar cambios</b> vuelve a los valores guardados. "
-            "Solo son obligatorios el <b>inicio</b>, el <b>plazo</b> (o la fecha de fin) y los <b>km/año</b>; los campos marcados como <i>opc.</i> pueden dejarse vacíos, "
+            "Solo son obligatorios el <b>inicio</b>, el <b>plazo</b> (o la fecha de fin), los <b>km/año</b> y la <b>cuota con IVA</b>; los campos marcados como <i>opc.</i> pueden dejarse vacíos, "
             "y en ese caso la aplicación indica en cada tarjeta qué cálculo no puede hacer (véase 2.3)."),
           table([["Bloque", "Campos"],
                  ["Contrato", "Nº de contrato, vehículo, matrícula, compañía de renting con sus teléfonos y correo, inicio (puesta a disposición), fin, plazo en meses y km/año. Debajo se muestran los km contratados resultantes."],

@@ -101,8 +101,8 @@ fun AsistenteContratoDialog(
             inicio = inicio, fin = fin,
             meses = mesesInt!!.also { require(it > 0) },
             kmAnio = Fmt.parseInt(kmAnio)!!.also { require(it > 0) },
-            cuotaMensual = d(cuota) ?: 0.0,
-            cuotaSinIva = d(cuotaSinIva) ?: ((d(cuota) ?: 0.0) / (1 + (ivaFrac ?: 0.0))),
+            cuotaMensual = d(cuota)!!.also { require(it > 0) },
+            cuotaSinIva = d(cuotaSinIva) ?: (d(cuota)!! / (1 + (ivaFrac ?: 0.0))),
             repDanos = d(repDanos) ?: 0.0,
             deposito = d(deposito) ?: 0.0,
             eurKmNoRecorrido = d(eurNoRec) ?: 0.0,
@@ -134,7 +134,7 @@ fun AsistenteContratoDialog(
         3 -> {
             val sinIva = d(cuotaSinIva) ?: d(cuota)?.div(1 + (ivaFrac ?: 0.0))
             when {
-                cuota.isNotBlank() && d(cuota) == null -> "La cuota mensual no es un número válido."
+                d(cuota).let { it == null || it <= 0 } -> "Indica la cuota mensual con IVA: es el dato obligatorio de este paso."
                 d(cuotaSinIva) != null && d(cuotaSinIva)!! > d(cuota)!! -> "La cuota sin IVA no puede superar la cuota con IVA."
                 ivaFrac != null && d(cuotaSinIva) != null && d(cuotaSinIva)!! > 0 && kotlin.math.abs(d(cuotaSinIva)!! * (1 + ivaFrac) - d(cuota)!!) > 1.0 ->
                     "Cuota sin IVA × (1 + IVA) = ${Fmt.dec(d(cuotaSinIva)!! * (1 + ivaFrac), 2)} €, no cuadra con la cuota con IVA."
@@ -172,6 +172,10 @@ fun AsistenteContratoDialog(
                 Text("${paso + 1} de ${titulos.size} · ${titulos[paso]}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(6.dp))
                 LinearProgressIndicator(progress = { (paso + 1f) / titulos.size }, modifier = Modifier.fillMaxWidth())
+                if (pendiente != null) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(pendiente, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                }
             }
         },
         text = {
@@ -204,8 +208,8 @@ fun AsistenteContratoDialog(
                         if (total != null) Resumen("Kilómetros contratados: ${Fmt.km(total)}")
                     }
                     3 -> {
-                        Ayuda("Todos estos importes son opcionales: si los dejas vacíos, la aplicación sigue el contrato pero no calcula el coste por kilómetro, el coste total ni el IVA. La cuota sin IVA se deduce de la cuota con IVA.")
-                        NumberField("Cuota mensual con IVA (opcional)", cuota, {
+                        Ayuda("La cuota mensual con IVA es obligatoria: con ella se calculan el coste por kilómetro, el coste total del contrato y el IVA. La cuota sin IVA se deduce de ella y los otros dos importes son opcionales.")
+                        NumberField("Cuota mensual con IVA", cuota, {
                             cuota = it
                             val c = d(it); val v = ivaFrac
                             if (c != null && v != null && v >= 0) cuotaSinIva = Fmt.dec(c / (1 + v), 2)
@@ -267,15 +271,11 @@ fun AsistenteContratoDialog(
                         Recomendacion()
                         if (pendiente == null && candidato != null) {
                             Resumen(
-                                "Todo listo: ${Fmt.km(candidato.kmContratados)} en ${candidato.meses} meses" +
-                                    (if (candidato.tieneCostes) ", cuota ${Fmt.eur(candidato.cuotaMensual)}/mes" else ", sin cuota (no se calcularán costes)") +
-                                    ". Pulsa Guardar para crear el contrato.",
+                                "Todo listo: ${Fmt.km(candidato.kmContratados)} en ${candidato.meses} meses, " +
+                                    "cuota ${Fmt.eur(candidato.cuotaMensual)}/mes. Pulsa Guardar para crear el contrato.",
                             )
                         }
                     }
-                }
-                if (pendiente != null) {
-                    Text(pendiente, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 }
             }
         },

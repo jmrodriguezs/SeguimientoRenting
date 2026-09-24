@@ -66,8 +66,7 @@ data class ContractParams(
         }
         if (meses <= 0) e += "El plazo debe ser mayor que 0."
         if (kmAnio <= 0) e += "Los km/año deben ser mayores que 0."
-        // La cuota es opcional: sin ella no hay costes, pero sí seguimiento de kilómetros
-        if (cuotaMensual < 0) e += "La cuota mensual no puede ser negativa."
+        if (cuotaMensual <= 0) e += "La cuota mensual con IVA es obligatoria."
         if (cuotaSinIva > cuotaMensual) e += "La cuota sin IVA no puede superar la cuota con IVA."
         if (cuotaMensual > 0 && cuotaSinIva > 0 && kotlin.math.abs(cuotaSinIva * (1 + tipoIva) - cuotaMensual) > 1.0)
             e += "Cuota sin IVA × (1 + IVA) = ${"%.2f".format(cuotaSinIva * (1 + tipoIva))} €, no coincide con la cuota con IVA (${"%.2f".format(cuotaMensual)} €)."
