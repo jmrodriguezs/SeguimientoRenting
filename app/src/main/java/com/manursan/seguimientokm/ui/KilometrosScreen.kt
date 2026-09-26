@@ -168,7 +168,7 @@ private fun KmRowCard(
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     MiniStat("Teóricos", Fmt.km(row.teoricos), Modifier.weight(1f))
-                    MiniStat("Gasolina acum.", Fmt.eur(row.gastoGasolina), Modifier.weight(1f), valueColor = accentText(Palette.orange))
+                    MiniStat("Combustible acum.", Fmt.eur(row.gastoGasolina), Modifier.weight(1f), valueColor = accentText(Palette.orange))
                     MiniStat("Coste/km", Fmt.eur(row.costeKmTotal, 4), Modifier.weight(1f))
                 }
                 if (row.nota.isNotBlank()) {

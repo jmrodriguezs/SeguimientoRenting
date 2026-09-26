@@ -15,8 +15,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.3.2"
+        versionCode = 11
+        versionName = "1.3.3"
         // Solo arquitecturas de móviles y tablets reales: sin x86/x86_64 (emuladores) la APK pesa la mitad
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }

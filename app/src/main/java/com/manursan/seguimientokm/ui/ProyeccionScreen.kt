@@ -154,6 +154,30 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            // La desviación es la misma en todos los meses (el ritmo proyectado es constante):
+            // se muestra una sola vez aquí en lugar de repetirla en cada fila
+            val desv = r.proyeccion.lastOrNull()?.desviacionPct
+            if (desv != null) {
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    Modifier.fillMaxWidth().background(tint(if (desv > 0) Palette.red else Palette.green, 0.10f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Desviación proyectada", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            if (desv > 0) "Por encima de los km teóricos, todos los meses" else "Por debajo de los km teóricos, todos los meses",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Text(
+                        Fmt.pct(desv), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
+                        color = if (desv > 0) neg else pos,
+                    )
+                }
+            }
             Spacer(Modifier.height(8.dp))
         }
 
@@ -183,11 +207,10 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
 @Composable
 private fun ProjHeader() {
     Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-        HeaderCell("Fecha", 1.1f, TextAlign.Start)
-        HeaderCell("Km", 1f)
-        HeaderCell("Teóricos", 1f)
-        HeaderCell("Desv.", 1.1f)
-        HeaderCell("Gasolina", 1f)
+        HeaderCell("Fecha", 1.2f, TextAlign.Start)
+        HeaderCell("Km proyectados", 1.3f)
+        HeaderCell("Km teóricos", 1.3f)
+        HeaderCell("Combustible", 1.1f)
     }
 }
 
@@ -205,14 +228,12 @@ private fun androidx.compose.foundation.layout.RowScope.HeaderCell(text: String,
 @Composable
 private fun ProjRow(row: KmRow, pos: androidx.compose.ui.graphics.Color, neg: androidx.compose.ui.graphics.Color) {
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(Fmt.dateShort(row.fecha), Modifier.weight(1.1f).padding(start = 4.dp), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-        Text(Fmt.int(row.km), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End, fontWeight = FontWeight.Medium)
-        Text(Fmt.int(row.teoricos), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End)
+        Text(Fmt.dateShort(row.fecha), Modifier.weight(1.2f).padding(start = 4.dp), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
         Text(
-            Fmt.pct(row.desviacionPct), Modifier.weight(1.1f),
-            style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End,
-            color = if (row.desviacion > 0) neg else pos,
+            Fmt.int(row.km), Modifier.weight(1.3f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End,
+            fontWeight = FontWeight.Medium, color = if (row.desviacion > 0) neg else pos,
         )
-        Text(Fmt.int(row.gastoGasolina) + " €", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End)
+        Text(Fmt.int(row.teoricos), Modifier.weight(1.3f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End)
+        Text(Fmt.int(row.gastoGasolina) + " €", Modifier.weight(1.1f), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End)
     }
 }

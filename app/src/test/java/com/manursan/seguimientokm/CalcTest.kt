@@ -402,3 +402,28 @@ class ContratoMinimoTest {
         assert(p.errores().any { it.contains("no coincide") || it.contains("no cuadra") })
     }
 }
+
+class EjeGraficoTest {
+    /** El eje del gráfico usa pasos redondos, de forma que nunca salen decenas de etiquetas encima. */
+    @Test fun pasosRedondos() {
+        assertEquals(5000.0, com.manursan.seguimientokm.ui.pasoRedondo(30000.0), 1e-9)   // 6 marcas
+        assertEquals(10000.0, com.manursan.seguimientokm.ui.pasoRedondo(45000.0), 1e-9)  // 5 marcas
+        assertEquals(25000.0, com.manursan.seguimientokm.ui.pasoRedondo(135000.0), 1e-9) // 6 marcas
+        assertEquals(1000.0, com.manursan.seguimientokm.ui.pasoRedondo(Double.NaN), 1e-9)
+    }
+
+    @Test fun numeroDeMarcasRazonable() {
+        // Para cualquier escala, entre 4 y 7 marcas en el eje
+        for (maxKm in listOf(1_000.0, 30_000.0, 45_000.0, 135_000.0, 586_000.0, 3_000_000.0)) {
+            val paso = com.manursan.seguimientokm.ui.pasoRedondo(maxKm)
+            val marcas = generateSequence(0.0) { it + paso }.takeWhile { it <= maxKm + paso * 0.01 }.take(12).toList()
+            assert(marcas.size in 4..7) { "maxKm=$maxKm → ${marcas.size} marcas" }
+        }
+    }
+
+    @Test fun etiquetasLegibles() {
+        assertEquals("10k", com.manursan.seguimientokm.ui.etiquetaKm(10000.0, 10000.0))
+        assertEquals("2,5k", com.manursan.seguimientokm.ui.etiquetaKm(2500.0, 2500.0))
+        assertEquals("500", com.manursan.seguimientokm.ui.etiquetaKm(500.0, 500.0))
+    }
+}

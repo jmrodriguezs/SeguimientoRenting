@@ -335,11 +335,13 @@ story += [P("Elige con qué ritmo se proyecta hasta el fin del contrato:"),
           P("Si aún no tienes 180 días de mediciones, al pulsar <b>6 meses</b> la aplicación te indica cuántos días llevas y cuántos faltan, y sigue aplicando el escenario anterior. "
             "El dato <i>Últimos 6 meses</i> también muestra los días que faltan.")]
 story += H2("8.2 Gráfica")
-story += [P("Puntos verdes: tus mediciones. Recta gris: km teóricos. Línea morada discontinua: proyección desde la última medida. Líneas punteadas: umbrales de abono (turquesa) y de cargo (rojo). "
+story += [P("Puntos verdes: tus mediciones. Recta gris: km teóricos. Línea morada discontinua: proyección desde la última medida. Líneas punteadas: umbrales de abono (turquesa) y de cargo (rojo), cuyos valores aparecen en la leyenda. "
             "Si los puntos van por debajo de la recta, vas por debajo del ritmo contratado."),
           P("Con menos de dos mediciones no hay evolución que dibujar: en su lugar aparece un aviso indicando qué falta.")]
 story += H2("8.3 Proyección mensual")
-story += [P("Tabla con los km previstos el día 15 de cada mes hasta el fin del contrato, los teóricos, la desviación y la gasolina acumulada estimada."),
+story += [P("Sobre la tabla se muestra una sola vez la <b>desviación proyectada</b>: como el ritmo aplicado es constante, el porcentaje sería el mismo en todas las filas, así que se indica "
+            "destacado en lugar de repetirlo mes a mes (verde por debajo de los km teóricos, rojo por encima)."),
+          P("La tabla recoge, para el día 15 de cada mes hasta el fin del contrato, los <b>km proyectados</b> (con el color de la desviación), los <b>km teóricos</b> y el <b>combustible</b> acumulado estimado."),
           figrow([("30_proy_1", "Escenario y resultado"), ("31_proy_2", "Gráfica"), ("32_proy_3", "Tabla mensual")])]
 
 # ---------- 9. Ajustes ----------

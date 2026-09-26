@@ -220,7 +220,7 @@ object PdfReport {
                 box(M, y, W - M, y + th)
                 yy = y + 14f
                 txt("ÚLTIMAS MEDICIONES", M + 8f, yy, 7.5f, bold = true, color = VERDE); yy += 13f
-                val cols = listOf("Fecha", "Día", "Km reales", "Km teóricos", "Desviación", "Km/día", "Gasolina acum.", "Coste/km")
+                val cols = listOf("Fecha", "Día", "Km reales", "Km teóricos", "Desviación", "Km/día", "Combustible acum.", "Coste/km")
                 val cx = FloatArray(cols.size) { i -> M + 8f + i * ((W - 2 * M - 16f) / cols.size) }
                 val cwid = (W - 2 * M - 16f) / cols.size
                 cols.forEachIndexed { i, h -> txt(h, if (i == 0) cx[i] else cx[i] + cwid - 6f, yy, 7f, bold = true, color = GRIS, align = if (i == 0) Paint.Align.LEFT else Paint.Align.RIGHT) }
