@@ -391,8 +391,7 @@ story += [P("Aquí se introducen los parámetros que alimentan todos los cálcul
             "km/año y cuota mayores que cero, cuota sin IVA no superior a la cuota con IVA y coherente con el tipo de IVA, reparación de daños no superior a la cuota sin IVA, porcentajes entre 0 y 100 y recargo ≥ 1."),
           figrow([("43_ajustes_4", "Contrato y liquidación"), ("44_ajustes_5", "Cuotas e IVA"), ("46_ajustes_7", "Borrar datos")])]
 story += H2("9.8 Versión de la aplicación")
-story += [P("Al final de la pantalla de Ajustes se indica la versión instalada, por ejemplo <i>Seguimiento Renting · versión 1.3.4 (12)</i>: el primer número es la versión visible y el segundo, "
-            "el código interno que usa Google Play. Es el dato que conviene indicar si hay que reportar un problema.")]
+story += [P("Al final de la pantalla de Ajustes se indica la versión instalada, por ejemplo <i>Seguimiento Renting · versión 1.3.4</i>. Es el dato que conviene indicar si hay que reportar un problema.")]
 story += H2("9.9 Borrar datos")
 story += [P("Deja la aplicación vacía: contrato, mediciones, repostajes, gastos y fotos (se conservan solo la apariencia y los recordatorios). Como protección, el botón permanece "
             "<b>deshabilitado hasta que exista una copia de seguridad de los datos actuales</b>: la tarjeta indica <i>Sin copia de los datos actuales</i> o <i>Copia al día</i>. "

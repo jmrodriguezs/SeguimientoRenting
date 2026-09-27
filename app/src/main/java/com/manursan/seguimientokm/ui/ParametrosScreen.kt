@@ -654,7 +654,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
 
         // Versión de la aplicación, al final de los ajustes
         Text(
-            "Seguimiento Renting · versión ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+            "Seguimiento Renting · versión ${BuildConfig.VERSION_NAME}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
