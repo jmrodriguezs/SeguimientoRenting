@@ -47,6 +47,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -55,6 +57,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Switch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
 import com.manursan.seguimientokm.FuelPrices
 import com.manursan.seguimientokm.Reminders
@@ -87,6 +90,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.manursan.seguimientokm.BuildConfig
 import com.manursan.seguimientokm.ContractParams
 import com.manursan.seguimientokm.Fmt
 import com.manursan.seguimientokm.MainViewModel
@@ -270,6 +274,60 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
             } else vm.changeReminders(s)
         }
         val rem = vm.reminders
+        // Datos que Android restauró de la nube: no se cargan solos, decide el usuario
+        if (vm.restauradaDisponible) {
+            SectionCard(
+                title = "Copia encontrada en Google Drive",
+                subtitle = "De una instalación anterior de esta aplicación",
+                icon = Icons.Default.CloudDownload,
+                accent = Palette.teal,
+            ) {
+                Text(
+                    "Android ha restaurado una copia al instalar la aplicación, pero no se ha cargado: tú decides." +
+                        (vm.resumenRestaurada()?.let { "\n\nContiene: $it." } ?: ""),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { vm.recuperarRestaurada(); onMessage("Datos recuperados de Google Drive") }) { Text("Recuperar datos") }
+                    OutlinedButton(onClick = { vm.descartarRestaurada(); onMessage("Copia descartada") }) { Text("Descartar") }
+                }
+            }
+        }
+
+        SectionCard(
+            title = "Copia automática en Google Drive",
+            subtitle = if (vm.copiaNube) "Activada" else "Desactivada",
+            icon = Icons.Default.CloudUpload,
+            accent = Palette.blue,
+        ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                Column(Modifier.weight(1f)) {
+                    Text("Guardar los datos en la copia de Android", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        if (vm.copiaNube) "Android sube el contrato, las mediciones, los repostajes y los gastos a tu cuenta de Google y los restaura al reinstalar la aplicación."
+                        else "Los datos se quedan solo en este dispositivo. Al desinstalar la aplicación se pierden: usa Guardar copia de seguridad del menú ⋮ para conservarlos.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(checked = vm.copiaNube, onCheckedChange = { vm.changeCopiaNube(it) })
+            }
+            if (vm.copiaNube) {
+                Text(
+                    "Las fotos no se incluyen (la copia de Android está limitada a 25 MB). La copia la realiza el sistema cuando el teléfono está cargando y con wifi, así que los cambios más recientes pueden tardar en subir.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text(
+                "La cuenta de Google donde se guarda la copia es la que tengas configurada en Android; la aplicación no la elige ni accede a tu Drive. Puedes verla o cambiarla en los ajustes del teléfono.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            OutlinedButton(onClick = { abrirAjustesCopia(context) }) {
+                Icon(Icons.Default.OpenInNew, contentDescription = null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Ajustes de copia de Android")
+            }
+        }
+
         SectionCard(title = "Recordatorios", subtitle = "Notificaciones a las 10:00", icon = Icons.Default.Notifications, accent = Palette.orange) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 Column(Modifier.weight(1f)) {
@@ -594,6 +652,14 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
             )
         }
 
+        // Versión de la aplicación, al final de los ajustes
+        Text(
+            "Seguimiento Renting · versión ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+        )
         Spacer(Modifier.height(16.dp))
     }
 
@@ -620,4 +686,17 @@ private fun PulsingPill(text: String, color: androidx.compose.ui.graphics.Color,
         scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
     }
     Box(Modifier.graphicsLayer { scaleX = scale.value; scaleY = scale.value }) { Pill(text, color) }
+}
+
+
+/** Abre la pantalla del sistema donde se ve y se cambia la cuenta de la copia de seguridad. */
+private fun abrirAjustesCopia(context: android.content.Context) {
+    val intentos = listOf(
+        Intent("android.settings.BACKUP_AND_RESET_SETTINGS"),
+        Intent(android.provider.Settings.ACTION_PRIVACY_SETTINGS),
+        Intent(android.provider.Settings.ACTION_SETTINGS),
+    )
+    for (i in intentos) {
+        if (runCatching { context.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); true }.getOrDefault(false)) return
+    }
 }

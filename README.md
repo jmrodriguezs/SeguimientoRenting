@@ -27,7 +27,8 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
 - **Recordatorios**: notificación mensual para anotar los km y aviso 30 días antes del ajuste anual.
 - **Próximo ajuste anual**: fecha, km previstos, desviación y si cae dentro de la banda ±10 %.
 - **Widget** de pantalla de inicio con km actuales, desviación y margen diario.
-- Cuenta atrás de fin de contrato, modo claro/oscuro, copia de seguridad en ZIP (datos + fotos) y copia automática de Android.
+- Cuenta atrás de fin de contrato, modo claro/oscuro y copia de seguridad en ZIP (datos + fotos).
+- **Copia automática de Android (Google Drive)**: desactivada por defecto y con interruptor en Ajustes; si el sistema restaura una copia que el usuario no autorizó, los datos quedan en espera hasta que decida recuperarlos o descartarlos.
 
 ## Pantallas
 - **Resumen**: estado actual (km, desviación vs. teóricos, km/día, coste/km), combustible,

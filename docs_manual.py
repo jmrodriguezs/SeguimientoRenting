@@ -185,7 +185,7 @@ story += [P("La primera vez la aplicación está <b>vacía</b>: no hay contrato 
             "Las demás pestañas muestran el aviso <i>Contrato sin configurar</i> y no permiten anotar datos hasta que el contrato tenga fechas válidas, plazo y kilómetros anuales. "
             "Tienes tres formas de empezar:"),
           bullets(["<b>Configurar paso a paso</b> (recomendado): el asistente te pide los datos uno a uno con explicaciones (capítulo 2.3).",
-                   "<b>Introducir el contrato</b> en <i>Ajustes → Contrato</i>: fechas, plazo, km/año, cuotas y tarifas (capítulo 9.6).",
+                   "<b>Introducir el contrato</b> en <i>Ajustes → Contrato</i>: fechas, plazo, km/año, cuotas y tarifas (capítulo 9.7).",
                    "<b>Restaurar una copia de seguridad</b> (menú ⋮ → <i>Restaurar copia de seguridad</i>) si vienes de otro dispositivo o de una instalación anterior (capítulo 10.4)."]),
           figrow([("01_resumen_1", "Resumen con el contrato configurado"), ("10_km_lista", "Kilómetros con mediciones"), ("40_ajustes_1", "Ajustes")])]
 
@@ -350,7 +350,7 @@ story += H2("9.1 Apariencia")
 story += [P("<b>Sistema</b> (sigue el tema del dispositivo), <b>Claro</b> u <b>Oscuro</b>. El cambio es inmediato y se recuerda.")]
 story += H2("9.2 Datos de contacto de la empresa de renting")
 story += [P("Tarjeta de contacto con tu compañía de renting: botones con los teléfonos que hayas configurado y un botón de correo que abre un mensaje con el número de contrato en el asunto. "
-            "El nombre de la compañía, los teléfonos y el correo se introducen en el bloque <i>Contrato</i> (apartado 9.6); mientras estén vacíos, la tarjeta lo indica. "
+            "El nombre de la compañía, los teléfonos y el correo se introducen en el bloque <i>Contrato</i> (apartado 9.7); mientras estén vacíos, la tarjeta lo indica. "
             "Al pulsar un teléfono se abre el marcador del sistema con el número ya escrito; solo tienes que confirmar la llamada. La aplicación no necesita permiso de teléfono.")]
 story += H2("9.3 Multas")
 story += [P("Consulta el <b>Tablón Edictal Único del BOE</b>, donde la DGT y los ayuntamientos publican las sanciones de tráfico que no han podido notificar (últimos 3 meses)."),
@@ -361,13 +361,23 @@ story += [P("Consulta el <b>Tablón Edictal Único del BOE</b>, donde la DGT y l
           note("En un renting el titular del vehículo es la compañía: las multas se le notifican a ella, que identifica al conductor y se las reenvía. Al tablón del BOE solo llegan las que no se han podido notificar. "
                "Las sanciones que ya estén a tu nombre se consultan en la sede de la DGT con identificación (Cl@ve o certificado).", NARANJA, "Importante"),
           figrow([("40_ajustes_1", "Apariencia y compañía de renting"), ("47_ajustes_multas", "Consulta de multas con resultado"), ("42_ajustes_3", "Contrato")])]
-story += H2("9.4 Recordatorios")
+story += H2("9.4 Copia automática en Google Drive")
+story += [P("Android puede guardar una copia de los datos de las aplicaciones en la cuenta de Google del teléfono y restaurarla al reinstalarlas. En Seguimiento Renting esa copia viene "
+            "<b>desactivada</b>: los datos se quedan solo en el dispositivo y, al desinstalar la aplicación, se pierden. Para llevarlos a otro teléfono está la copia de seguridad en ZIP del menú (10.4)."),
+          bullets(["Con el interruptor <b>activado</b>, Android sube el contrato, las mediciones, los repostajes y los gastos, y los restaura automáticamente al reinstalar la aplicación.",
+                   "Las <b>fotos no se incluyen</b>: la copia de Android está limitada a 25 MB. Sí van en la copia en ZIP.",
+                   "La copia la hace el sistema cuando el teléfono está cargando y con wifi, así que los cambios recientes pueden tardar en subir.",
+                   "La <b>cuenta de Google</b> es la que tengas configurada en Android; la aplicación no la elige ni accede a tu Drive. El botón <i>Ajustes de copia de Android</i> abre la pantalla del sistema donde se consulta o se cambia."]),
+          note("Si al instalar la aplicación Android restaura una copia anterior y tú no tenías activada esta opción, los datos <b>no se cargan solos</b>: aparece la tarjeta <i>Copia encontrada en Google Drive</i> "
+               "con un resumen de lo que contiene y dos botones, <b>Recuperar datos</b> y <b>Descartar</b>. Así nunca reaparecen datos sin que tú lo decidas.", AZUL, "Nota"),
+          figrow([("49_copia_nube", "Copia automática, desactivada por defecto")], w=7*cm)]
+story += H2("9.5 Recordatorios")
 story += [P("<b>Anotar los kilómetros cada mes</b>: notificación el día del mes que elijas (1–28) a las 10:00, con la última medida y el margen diario. "
             "<b>Aviso previo al ajuste anual</b>: notificación 30 días antes de cada aniversario del contrato con la previsión de km. Ambos piden el permiso de notificaciones la primera vez y sobreviven al reinicio del dispositivo.")]
-story += H2("9.5 Precio de mercado")
+story += H2("9.6 Precio de mercado")
 story += [P("<b>Combustible</b> de tu vehículo (gasolinas 95 y 98 en todas sus variantes, gasóleo A y Premium, diésel y gasolina renovables, biodiésel, bioetanol, GLP, GNC, GNL e hidrógeno) y <b>provincia</b> donde sueles repostar (o <i>Toda España</i>). Ambos se usan para obtener el precio medio de mercado. Por defecto es Gasolina 95 E5; elegir tu provincia hace la consulta más rápida y más representativa de lo que pagas. Para GNC, GNL e hidrógeno el precio publicado es por kilogramo."),
           figrow([("45_ajustes_mercado", "Combustible y provincia para el precio de mercado")], w=7*cm)]
-story += H2("9.6 Contrato, cuotas, liquidación e IVA")
+story += H2("9.7 Contrato, cuotas, liquidación e IVA")
 story += [P("Aquí se introducen los parámetros que alimentan todos los cálculos. Se guardan al pulsar <b>Guardar</b>; <b>Descartar cambios</b> vuelve a los valores guardados. "
             "Solo son obligatorios el <b>inicio</b>, el <b>plazo</b> (o la fecha de fin), los <b>km/año</b> y la <b>cuota con IVA</b>; los campos marcados como <i>opc.</i> pueden dejarse vacíos, "
             "y en ese caso la aplicación indica en cada tarjeta qué cálculo no puede hacer (véase 2.3)."),
@@ -380,7 +390,10 @@ story += [P("Aquí se introducen los parámetros que alimentan todos los cálcul
           P("La aplicación <b>valida la coherencia</b> antes de guardar y lista los problemas en una tarjeta roja: fin posterior al inicio, plazo coherente con las fechas (±1 mes), "
             "km/año y cuota mayores que cero, cuota sin IVA no superior a la cuota con IVA y coherente con el tipo de IVA, reparación de daños no superior a la cuota sin IVA, porcentajes entre 0 y 100 y recargo ≥ 1."),
           figrow([("43_ajustes_4", "Contrato y liquidación"), ("44_ajustes_5", "Cuotas e IVA"), ("46_ajustes_7", "Borrar datos")])]
-story += H2("9.7 Borrar datos")
+story += H2("9.8 Versión de la aplicación")
+story += [P("Al final de la pantalla de Ajustes se indica la versión instalada, por ejemplo <i>Seguimiento Renting · versión 1.3.4 (12)</i>: el primer número es la versión visible y el segundo, "
+            "el código interno que usa Google Play. Es el dato que conviene indicar si hay que reportar un problema.")]
+story += H2("9.9 Borrar datos")
 story += [P("Deja la aplicación vacía: contrato, mediciones, repostajes, gastos y fotos (se conservan solo la apariencia y los recordatorios). Como protección, el botón permanece "
             "<b>deshabilitado hasta que exista una copia de seguridad de los datos actuales</b>: la tarjeta indica <i>Sin copia de los datos actuales</i> o <i>Copia al día</i>. "
             "Si después de la copia anotas algo, hará falta una copia nueva. La confirmación exige escribir <b>BORRAR</b>. Para recuperar los datos, restaura la copia desde el menú ⋮.")]
@@ -443,6 +456,7 @@ story += [bullets(["Los datos (contrato, mediciones, repostajes, gastos, fotos y
                    "La <b>copia automática de Android</b> (Google Drive, si está activada en el dispositivo) incluye los datos y ajustes pero no las fotos; para las fotos usa la copia manual ZIP.",
                    "<b>Precio de mercado</b>: consulta los datos abiertos de precios de carburantes del Ministerio de Industria (Geoportal de gasolineras). Se envía únicamente la fecha, la provincia y el tipo de carburante.",
                    "<b>Multas</b>: consulta el buscador público del Tablón Edictal Único del BOE. Se envía únicamente la matrícula como texto de búsqueda.",
+                   "<b>Copia en la nube</b>: desactivada por defecto. Si la activas, es Android quien sube los datos a la cuenta de Google del teléfono; la aplicación no accede a tu Drive (apartado 9.4).",
                    "<b>Llamadas</b>: los botones de teléfono abren el marcador del sistema; la aplicación no tiene permiso para llamar por sí misma. <b>Notificaciones</b>: solo para los recordatorios que actives.",
                    "Ambos servicios públicos pueden cambiar de formato; en ese caso la función afectada mostrará un error claro en lugar de un resultado incorrecto."])]
 

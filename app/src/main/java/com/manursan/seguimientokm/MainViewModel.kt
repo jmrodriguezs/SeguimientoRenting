@@ -52,6 +52,38 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var reminders: Reminders.Settings by mutableStateOf(Reminders.load(app))
         private set
 
+    /** Copia automática de Android (Google Drive): desactivada mientras el usuario no la active. */
+    var copiaNube: Boolean by mutableStateOf(CopiaNube.activada(app))
+        private set
+
+    fun changeCopiaNube(valor: Boolean) {
+        copiaNube = valor
+        CopiaNube.activar(ctx, valor)
+    }
+
+    /** Datos que Android ha restaurado de Google Drive y esperan a que el usuario decida. */
+    var restauradaDisponible: Boolean by mutableStateOf(CopiaNube.hayRestaurada(app))
+        private set
+
+    /** Resumen de lo que contiene esa copia, para poder decidir con criterio. */
+    fun resumenRestaurada(): String? = runCatching {
+        val d = Storage.fromJson(CopiaNube.ficheroEnEspera(ctx).readText())
+        "${d.measurements.size} mediciones · ${d.refuels.size} repostajes · ${d.expenses.size} gastos" +
+            (if (d.params.configurado) " · contrato de ${Fmt.km(d.params.kmContratados)}" else " · sin contrato")
+    }.getOrNull()
+
+    fun recuperarRestaurada() {
+        val f = CopiaNube.ficheroEnEspera(ctx)
+        runCatching { update(Storage.fromJson(f.readText())) }
+        f.delete()
+        restauradaDisponible = false
+    }
+
+    fun descartarRestaurada() {
+        CopiaNube.ficheroEnEspera(ctx).delete()
+        restauradaDisponible = false
+    }
+
     fun changeReminders(s: Reminders.Settings) {
         reminders = s
         Reminders.save(ctx, s)

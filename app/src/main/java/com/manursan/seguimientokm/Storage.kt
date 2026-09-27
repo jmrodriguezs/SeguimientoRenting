@@ -8,7 +8,8 @@ import java.time.LocalDate
 
 /** Guarda/carga todos los datos en un JSON en el almacenamiento privado de la app. */
 object Storage {
-    private const val FILE_NAME = "seguimiento_km.json"
+    const val FICHERO = "seguimiento_km.json"
+    private const val FILE_NAME = FICHERO
 
     fun load(context: Context): AppData {
         val f = File(context.filesDir, FILE_NAME)
