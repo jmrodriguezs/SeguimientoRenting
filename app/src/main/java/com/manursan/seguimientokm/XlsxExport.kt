@@ -62,6 +62,7 @@ object XlsxExport {
     }
 
     fun build(data: AppData, r: Resultado = Calc.compute(data)): ByteArray {
+        val e = Energia.de(data.params)
         val p = data.params
         val s = Sheet()
         val meas = r.reales
@@ -115,7 +116,7 @@ object XlsxExport {
         }
 
         // --- Repostajes (I:L) ---
-        s.str("I1", "FECHA", S_BOLD); s.str("J1", "REPOSTAJE", S_BOLD); s.str("K1", "ACUMULADO", S_BOLD); s.str("L1", "COSTE DIARIO", S_BOLD)
+        s.str("I1", "FECHA", S_BOLD); s.str("J1", e.carga.uppercase(), S_BOLD); s.str("K1", "ACUMULADO", S_BOLD); s.str("L1", "COSTE DIARIO", S_BOLD)
         reps.forEachIndexed { i, x ->
             val row = 2 + i
             s.date("I$row", x.refuel.fecha, S_INPUT_DATE)
@@ -147,8 +148,8 @@ object XlsxExport {
         s.str("M17", "SEGUIMIENTO", S_BOLD)
         s.str("M18", "Ultima fila real"); s.num("N18", lastReal, S_INPUT_INT)
         s.str("M19", "Km ultima medida"); s.formula("N19", "INDEX(\$B:\$B,\$N\$18)", S_THOUS, seg.kmUltima)
-        s.str("M20", "Combustible acum. (EUR)"); s.formula("N20", "SUMIFS($repRange,$repDates,\"<=\"&INDEX(\$A:\$A,\$N\$18))", S_D2, seg.combustibleAcumulado)
-        s.str("M21", "EUR / km combustible"); s.formula("N21", "\$N\$20/\$N\$19", S_D4, seg.eurKmCombustible)
+        s.str("M20", "${e.nombre} acum. (EUR)"); s.formula("N20", "SUMIFS($repRange,$repDates,\"<=\"&INDEX(\$A:\$A,\$N\$18))", S_D2, seg.combustibleAcumulado)
+        s.str("M21", "EUR / km ${e.nombre.lowercase()}"); s.formula("N21", "\$N\$20/\$N\$19", S_D4, seg.eurKmCombustible)
         s.str("M22", "km/dia proyeccion")
         if (p.modoProyeccion == ModoProyeccion.Acumulada) s.formula("N22", "\$N\$23", S_D2, seg.kmDiaProyeccion) else s.num("N22", seg.kmDiaProyeccion, S_INPUT_D2)
         s.str("M23", "km/dia real acumulado (ref.)"); s.formula("N23", "\$N\$19/(INDEX(\$A:\$A,\$N\$18)-\$A\$5)", S_D2, seg.kmDiaRealAcumulado)
@@ -164,7 +165,7 @@ object XlsxExport {
         s.str("M32", "Cuotas (${p.meses} x IVA incl.)"); s.formula("N32", "\$N\$5*\$N\$7", S_THOUS2, c.cuotas)
         s.str("M33", "Cuota irregular inicial")
         s.formula("N33", "\$N\$7*(DATE(YEAR(\$N\$3),MONTH(\$N\$3)+1,1)-\$N\$3)/(DATE(YEAR(\$N\$3),MONTH(\$N\$3)+1,1)-DATE(YEAR(\$N\$3),MONTH(\$N\$3),1))", S_THOUS2, c.cuotaIrregular)
-        s.str("M34", "Combustible proyectado"); s.formula("N34", "F$lastKm", S_THOUS2, c.combustibleProyectado)
+        s.str("M34", "${e.nombre} proyectad${if (e.electrico) "a" else "o"}"); s.formula("N34", "F$lastKm", S_THOUS2, c.combustibleProyectado)
         s.str("M35", "Abono km no recorridos"); s.formula("N35", "\$N\$29", S_THOUS2, c.abono)
         s.str("M36", "TOTAL", S_BOLD); s.formula("N36", "\$N\$32+\$N\$33+\$N\$34-\$N\$35", S_THOUS2, c.total)
         s.str("M37", "Coste por km"); s.formula("N37", "\$N\$36/\$N\$26", S_D4, c.costePorKm)
@@ -177,7 +178,7 @@ object XlsxExport {
         s.str("M44", "IVA cuotas"); s.formula("N44", "\$N\$32-\$N\$43", S_THOUS2, c.ivaCuotas)
         s.str("M45", "Base cuota irregular"); s.formula("N45", "\$N\$33/(1+\$N\$41)", S_THOUS2, c.baseCuotaIrregular)
         s.str("M46", "IVA cuota irregular"); s.formula("N46", "\$N\$33-\$N\$45", S_THOUS2, c.ivaCuotaIrregular)
-        s.str("M47", "IVA combustible (incluido en surtidor)"); s.formula("N47", "\$N\$34-\$N\$34/(1+\$N\$41)", S_THOUS2, c.ivaCombustible)
+        s.str("M47", "IVA ${e.nombre.lowercase()} (${e.ivaIncluido.lowercase()})"); s.formula("N47", "\$N\$34-\$N\$34/(1+\$N\$41)", S_THOUS2, c.ivaCombustible)
         s.str("M48", "IVA TOTAL SOPORTADO"); s.formula("N48", "\$N\$44+\$N\$46+\$N\$47", S_THOUS2, c.ivaTotal)
         s.str("M49", "IVA deducible"); s.formula("N49", "\$N\$48*\$N\$42", S_THOUS2, c.ivaDeducible)
         s.str("M50", "Coste neto tras deduccion", S_BOLD); s.formula("N50", "\$N\$36-\$N\$49", S_THOUS2, c.costeNeto)

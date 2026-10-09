@@ -35,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.EvStation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.AlertDialog
@@ -64,6 +65,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.manursan.seguimientokm.Energia
 import com.manursan.seguimientokm.Expense
 import com.manursan.seguimientokm.ExpenseCategory
 import com.manursan.seguimientokm.Fmt
@@ -97,7 +99,7 @@ fun RepostajesScreen(
 ) {
     if (!r.params.configurado) {
         Column(Modifier.fillMaxSize().padding(padding)) {
-            EmptyHint("Contrato sin configurar", "Rellena los datos del contrato en Ajustes (fechas, plazo y km/año) para poder anotar repostajes y gastos.", Icons.Default.DirectionsCar, Palette.indigo)
+            EmptyHint("Contrato sin configurar", "Rellena los datos del contrato en Ajustes (fechas, plazo y km/año) para poder anotar ${vm.energia.cargasMin} y gastos.", Icons.Default.DirectionsCar, Palette.indigo)
         }
         return
     }
@@ -108,11 +110,11 @@ fun RepostajesScreen(
                     selected = seccion == sec,
                     onClick = { onSeccion(sec) },
                     shape = SegmentedButtonDefaults.itemShape(index = i, count = GastoSeccion.entries.size),
-                ) { Text(sec.label) }
+                ) { Text(if (sec == GastoSeccion.Repostajes) vm.energia.cargas else sec.label) }
             }
         }
         when (seccion) {
-            GastoSeccion.Repostajes -> RefuelList(r, onEdit)
+            GastoSeccion.Repostajes -> RefuelList(r, vm.energia, onEdit)
             GastoSeccion.Otros -> ExpenseList(r, onExpenseEdit)
         }
     }
@@ -143,11 +145,11 @@ fun RepostajesScreen(
 }
 
 @Composable
-private fun RefuelList(r: Resultado, onEdit: (RefuelEdit) -> Unit) {
+private fun RefuelList(r: Resultado, e: Energia, onEdit: (RefuelEdit) -> Unit) {
     val rows = r.repostajes.asReversed()
     var verFoto by remember { mutableStateOf<String?>(null) }
     if (rows.isEmpty()) {
-        EmptyHint("Sin repostajes", "Pulsa + para anotar un repostaje.", Icons.Default.LocalGasStation, Palette.orange)
+        EmptyHint(e.sinCargas, "Pulsa + para anotar ${e.unaCarga}.", if (e.electrico) Icons.Default.EvStation else Icons.Default.LocalGasStation, Palette.orange)
         return
     }
     LazyColumn(
@@ -159,12 +161,12 @@ private fun RefuelList(r: Resultado, onEdit: (RefuelEdit) -> Unit) {
             val total = r.repostajes.lastOrNull()?.acumulado ?: 0.0
             val cons = r.consumo
             Text(
-                "${rows.size} repostajes · total ${Fmt.eur(total)}" + (cons.litros100km?.let { " · ${Fmt.dec(it, 2)} l/100 km" } ?: ""),
+                "${rows.size} ${e.cargasMin} · total ${Fmt.eur(total)}" + (cons.litros100km?.let { " · ${Fmt.dec(it, 2)} ${e.consumo}" } ?: ""),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp),
             )
         }
         items(rows, key = { it.refuel.id }) { row ->
-            RefuelCard(row, onPhoto = { verFoto = it }) {
+            RefuelCard(row, e, onPhoto = { verFoto = it }) {
                 val f = row.refuel
                 onEdit(RefuelEdit(
                     f.id, f.fecha, Fmt.dec(f.importe, 2).replace(".", ""), f.nota,
@@ -201,7 +203,7 @@ fun EmptyHint(
 }
 
 @Composable
-private fun RefuelCard(row: RefuelRow, onPhoto: (String) -> Unit, onClick: () -> Unit) {
+private fun RefuelCard(row: RefuelRow, e: Energia, onPhoto: (String) -> Unit, onClick: () -> Unit) {
     val accent = Palette.orange
     val f = row.refuel
     Card(
@@ -213,7 +215,7 @@ private fun RefuelCard(row: RefuelRow, onPhoto: (String) -> Unit, onClick: () ->
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    IconBadge(Icons.Default.LocalGasStation, accent, size = 34.dp)
+                    IconBadge(if (e.electrico) Icons.Default.EvStation else Icons.Default.LocalGasStation, accent, size = 34.dp)
                     Spacer(Modifier.width(10.dp))
                     Column {
                         Text(Fmt.date(f.fecha), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
@@ -232,9 +234,9 @@ private fun RefuelCard(row: RefuelRow, onPhoto: (String) -> Unit, onClick: () ->
             // Cuatro columnas de igual ancho: nunca se recortan
             Row(Modifier.fillMaxWidth()) {
                 MiniStat("Acumulado", Fmt.eur(row.acumulado), Modifier.weight(1f))
-                MiniStat("Litros", f.litrosEfectivos?.let { Fmt.dec(it, 1) + " l" } ?: "—", Modifier.weight(0.8f))
+                MiniStat(e.cantidad, f.litrosEfectivos?.let { Fmt.dec(it, 1) + " " + e.unidad } ?: "—", Modifier.weight(0.8f))
                 MiniStat(
-                    if (f.precioLitro == null) "€/l" else if (f.precioMercado) "€/l mercado" else "€/l manual",
+                    if (f.precioLitro == null) e.precioUnidad else if (f.precioMercado) "${e.precioUnidad} mercado" else "${e.precioUnidad} manual",
                     f.precioLitro?.let { Fmt.dec(it, 3) } ?: "—",
                     Modifier.weight(1f),
                     valueColor = if (f.precioLitro != null) accentText(accent) else androidx.compose.ui.graphics.Color.Unspecified,
@@ -266,7 +268,9 @@ private fun RefuelDialog(
     var nota by remember { mutableStateOf(edit.nota) }
     var litrosText by remember { mutableStateOf(edit.litros) }
     var precioText by remember { mutableStateOf(edit.precio) }
-    var precioModo by remember { mutableStateOf(if (edit.mercado || edit.precio.isBlank()) PrecioModo.Mercado else PrecioModo.Manual) }
+    val e = vm.energia
+    // Para la electricidad no hay precio oficial de mercado: siempre se anota a mano
+    var precioModo by remember { mutableStateOf(if (!e.electrico && (edit.mercado || edit.precio.isBlank())) PrecioModo.Mercado else PrecioModo.Manual) }
     var mercadoPrecio by remember { mutableStateOf<Double?>(if (edit.mercado) Fmt.parseDouble(edit.precio) else null) }
     var mercadoError by remember { mutableStateOf<String?>(null) }
     var cargando by remember { mutableStateOf(false) }
@@ -341,7 +345,7 @@ private fun RefuelDialog(
 
     AlertDialog(
         onDismissRequest = ::cancelar,
-        title = { Text(if (edit.id == null) "Nuevo repostaje" else "Editar repostaje") },
+        title = { Text(if (edit.id == null) e.nueva else e.editar) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // Foto del tique: al hacerla se leen los datos y se rellena el formulario
@@ -356,7 +360,7 @@ private fun RefuelDialog(
                                     Text("Leyendo el tique…", style = MaterialTheme.typography.bodySmall)
                                 }
                                 leido != null && !leido!!.vacio -> Text(
-                                    "Leído del tique: ${leido!!.campos.joinToString(", ")}. Revisa los datos antes de guardar.",
+                                    "Leído del tique: ${leido!!.campos(e).joinToString(", ")}. Revisa los datos antes de guardar.",
                                     style = MaterialTheme.typography.bodySmall, color = accentText(Palette.green),
                                 )
                                 leido != null -> Text("No se han reconocido datos en la foto; rellena el formulario a mano.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -378,11 +382,11 @@ private fun RefuelDialog(
                 DateField("Fecha", fecha, { fecha = it })
                 NumberField(
                     "Importe", importeText, { importeText = it }, suffix = "€", isError = error != null,
-                    supporting = error ?: importeCalc?.let { "Calculado: ${Fmt.dec(it, 2)} € (litros × precio)" }
-                        ?: if (importeText.isBlank()) "Obligatorio, o bien litros y precio por litro" else null,
+                    supporting = error ?: importeCalc?.let { "Calculado: ${Fmt.dec(it, 2)} € (${e.cantidadEnFrase} × precio)" }
+                        ?: if (importeText.isBlank()) "Obligatorio, o bien ${e.cantidadEnFrase} y ${e.precioPorEnFrase}" else null,
                 )
-                Text("Precio por litro", style = MaterialTheme.typography.labelLarge)
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                Text(e.precioPor, style = MaterialTheme.typography.labelLarge)
+                if (!e.electrico) SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                     PrecioModo.entries.forEachIndexed { i, m ->
                         SegmentedButton(
                             selected = precioModo == m, onClick = { precioModo = m },
@@ -391,7 +395,10 @@ private fun RefuelDialog(
                     }
                 }
                 when (precioModo) {
-                    PrecioModo.Manual -> NumberField("Precio", precioText, { precioText = it }, suffix = "€/l")
+                    PrecioModo.Manual -> NumberField(
+                        "Precio", precioText, { precioText = it }, suffix = e.precioUnidad,
+                        supporting = if (e.electrico) "Precio por kWh de la recarga (en casa o en el punto de carga)" else null,
+                    )
                     PrecioModo.Mercado -> Row(verticalAlignment = Alignment.CenterVertically) {
                         if (cargando) {
                             CircularProgressIndicator(Modifier.width(20.dp).height(20.dp), strokeWidth = 2.dp)
@@ -399,7 +406,7 @@ private fun RefuelDialog(
                             Text("Consultando precio medio…", style = MaterialTheme.typography.bodySmall)
                         } else if (mercadoPrecio != null) {
                             Column {
-                                Text("${Fmt.dec(mercadoPrecio!!, 3)} €/l", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = accentText(Palette.orange))
+                                Text("${Fmt.dec(mercadoPrecio!!, 3)} ${e.precioUnidad}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = accentText(Palette.orange))
                                 Text("${FuelPrices.nombreCombustible(vm.data.params.combustibleId)} · media en ${FuelPrices.nombreProvincia(vm.data.params.provinciaId)} el ${Fmt.date(fecha)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         } else {
@@ -408,8 +415,8 @@ private fun RefuelDialog(
                     }
                 }
                 NumberField(
-                    "Litros (opcional)", litrosText, { litrosText = it }, suffix = "l",
-                    supporting = if (litros == null && litrosCalc != null) "Calculado: ${Fmt.dec(litrosCalc, 2)} l (importe / precio)" else null,
+                    "${e.cantidad} (opcional)", litrosText, { litrosText = it }, suffix = e.unidad,
+                    supporting = if (litros == null && litrosCalc != null) "Calculado: ${Fmt.dec(litrosCalc, 2)} ${e.unidad} (importe / precio)" else null,
                 )
                 OutlinedTextField(
                     value = nota, onValueChange = { nota = it },
@@ -435,7 +442,7 @@ private fun RefuelDialog(
 
     if (confirmDelete && onDelete != null) {
         ConfirmDeleteDialog(
-            text = "¿Eliminar el repostaje del ${Fmt.date(edit.fecha)}?",
+            text = "¿Eliminar ${vm.energia.laCarga} del ${Fmt.date(edit.fecha)}?",
             onConfirm = { confirmDelete = false; onDelete() },
             onDismiss = { confirmDelete = false },
         )

@@ -51,6 +51,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import com.manursan.seguimientokm.ui.Palette
+import com.manursan.seguimientokm.ui.AcercaDeDialog
+import androidx.compose.material.icons.filled.EvStation
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -108,6 +110,7 @@ fun App(vm: MainViewModel) {
     var tab by rememberSaveable { mutableStateOf(if (vm.data.params.configurado) Tab.Resumen else Tab.Ajustes) }
     var menuOpen by remember { mutableStateOf(false) }
     var showLegalDialog by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
     var measurementEdit by remember { mutableStateOf<MeasurementEdit?>(null) }
     var refuelEdit by remember { mutableStateOf<RefuelEdit?>(null) }
     var expenseEdit by remember { mutableStateOf<ExpenseEdit?>(null) }
@@ -161,7 +164,7 @@ fun App(vm: MainViewModel) {
             val barColor by animateColorAsState(tab.color, label = "barColor")
             TopAppBar(
                 title = {
-                    Text(if (tab == Tab.Resumen) "Seguimiento Renting" else tab.label, fontWeight = FontWeight.Bold)
+                    Text(if (tab == Tab.Resumen) "Seguimiento Renting" else if (tab == Tab.Repostajes) vm.energia.cargas else tab.label, fontWeight = FontWeight.Bold)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = barColor,
@@ -177,7 +180,7 @@ fun App(vm: MainViewModel) {
                         DropdownMenuItem(text = { Text("Exportar a Excel (.xlsx)") }, onClick = {
                             menuOpen = false; saveXlsx.launch("SEGUIMIENTO_KILOMETROS_${LocalDate.now()}.xlsx")
                         })
-                        DropdownMenuItem(text = { Text("Completar precios de mercado") }, onClick = {
+                        if (!vm.energia.electrico) DropdownMenuItem(text = { Text("Completar precios de mercado") }, onClick = {
                             menuOpen = false
                             vm.completarPreciosMercado { ok, ko ->
                                 toast(if (ok == 0 && ko == 0) "Todos los repostajes ya tienen precio" else "Precios completados: $ok" + if (ko > 0) " · sin datos: $ko" else "")
@@ -192,6 +195,9 @@ fun App(vm: MainViewModel) {
                         DropdownMenuItem(text = { Text("Aviso legal y fuentes") }, onClick = {
                             menuOpen = false; showLegalDialog = true
                         })
+                        DropdownMenuItem(text = { Text("Acerca de...") }, onClick = {
+                            menuOpen = false; showAbout = true
+                        })
                     }
                 },
             )
@@ -202,7 +208,10 @@ fun App(vm: MainViewModel) {
                     NavigationBarItem(
                         selected = tab == t,
                         onClick = { tab = t },
-                        icon = { Icon(t.icon, contentDescription = t.label) },
+                        icon = {
+                            val electrico = t == Tab.Repostajes && vm.energia.electrico
+                            Icon(if (electrico) Icons.Default.EvStation else t.icon, contentDescription = if (t == Tab.Repostajes) vm.energia.cargas else t.label)
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.White,
                             indicatorColor = t.color,
@@ -320,4 +329,6 @@ fun App(vm: MainViewModel) {
             },
         )
     }
+
+    if (showAbout) AcercaDeDialog(onDismiss = { showAbout = false })
 }

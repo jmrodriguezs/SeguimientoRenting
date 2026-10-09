@@ -46,6 +46,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.EvStation
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.CloudDownload
@@ -304,7 +305,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                 Column(Modifier.weight(1f)) {
                     Text("Guardar los datos en la copia de Android", style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        if (vm.copiaNube) "Android sube el contrato, las mediciones, los repostajes y los gastos a tu cuenta de Google y los restaura al reinstalar la aplicación."
+                        if (vm.copiaNube) "Android sube el contrato, las mediciones, los ${vm.energia.cargasMin} y los gastos a tu cuenta de Google y los restaura al reinstalar la aplicación."
                         else "Los datos se quedan solo en este dispositivo. Al desinstalar la aplicación se pierden: usa Guardar copia de seguridad del menú ⋮ para conservarlos.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -478,11 +479,16 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
         // --- Precio de mercado ---
         var provOpen by remember { mutableStateOf(false) }
         var combOpen by remember { mutableStateOf(false) }
-        SectionCard(title = "Precio de mercado", subtitle = "Datos abiertos oficiales (MITECO)", icon = Icons.Default.LocalGasStation, accent = Palette.teal) {
+        val electrico = FuelPrices.esElectrico(p.combustibleId)
+        SectionCard(
+            title = if (electrico) "Tipo de energía" else "Precio de mercado",
+            subtitle = if (electrico) "Vehículo eléctrico · recargas en kWh" else "Datos abiertos oficiales (MITECO)",
+            icon = if (electrico) Icons.Default.EvStation else Icons.Default.LocalGasStation, accent = Palette.teal,
+        ) {
             ExposedDropdownMenuBox(expanded = combOpen, onExpandedChange = { combOpen = it }) {
                 OutlinedTextField(
                     value = FuelPrices.nombreCombustible(p.combustibleId), onValueChange = {}, readOnly = true,
-                    label = { Text("Combustible") },
+                    label = { Text("Combustible o energía") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = combOpen) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(),
                 )
@@ -492,6 +498,13 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                     }
                 }
             }
+            if (electrico) {
+                Text(
+                    "Para los vehículos eléctricos la aplicación trabaja en kWh: las recargas se anotan con los kWh cargados y el precio por kWh, " +
+                        "y el consumo se muestra en kWh/100 km. No existe un precio oficial de mercado de las recargas, así que el precio se anota en cada una.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
             Spacer(Modifier.height(8.dp))
             ExposedDropdownMenuBox(expanded = provOpen, onExpandedChange = { provOpen = it }) {
                 OutlinedTextField(
@@ -530,9 +543,10 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                 }
             }
             Text(
-                "Elige el combustible de tu vehículo y la provincia donde sueles repostar. Se usan al elegir \"Precio de mercado\" en un repostaje y en \"Completar precios de mercado\" del menú. Por provincia la consulta es más rápida.",
+                "Elige el combustible de tu vehículo y la provincia donde sueles repostar. Se usan al elegir \"Precio de mercado\" en un repostaje y en \"Completar precios de mercado\" del menú. Por provincia la consulta es más rápida. Si tu vehículo es eléctrico, elige \"Electricidad\".",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            }
         }
 
         SectionCard(title = "Contrato", icon = Icons.Default.DirectionsCar, accent = Palette.indigo) {
@@ -617,18 +631,18 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Pill(if (alDia) "Copia al día" else "Sin copia de los datos actuales", if (alDia) Palette.green else Palette.red)
                     Text(
-                        "${n.measurements.size} mediciones · ${n.refuels.size} repostajes · ${n.expenses.size} gastos · ${n.measurements.count { it.foto != null }} fotos",
+                        "${n.measurements.size} mediciones · ${n.refuels.size} ${vm.energia.cargasMin} · ${n.expenses.size} gastos · ${n.measurements.count { it.foto != null }} fotos",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 if (!alDia) {
-                    Text("Guarda antes una copia de seguridad desde el menú ⋮ (ZIP con contrato, mediciones, repostajes, gastos y fotos). El borrado se habilita al guardarla; si después anotas algo, hará falta otra.",
+                    Text("Guarda antes una copia de seguridad desde el menú ⋮ (ZIP con contrato, mediciones, ${vm.energia.cargasMin}, gastos y fotos). El borrado se habilita al guardarla; si después anotas algo, hará falta otra.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Button(onClick = { borrado = true }, enabled = alDia, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Palette.red)) {
                     Icon(Icons.Default.DeleteForever, contentDescription = null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Borrar todos los datos")
                 }
-                Text("Deja la app vacía: contrato, mediciones, repostajes, gastos y fotos. Se conservan solo los ajustes de la app (apariencia, recordatorios). Para recuperar los datos, restaura la copia desde el menú ⋮.",
+                Text("Deja la app vacía: contrato, mediciones, ${vm.energia.cargasMin}, gastos y fotos. Se conservan solo los ajustes de la app (apariencia, recordatorios). Para recuperar los datos, restaura la copia desde el menú ⋮.",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -639,7 +653,7 @@ fun ParametrosScreen(vm: MainViewModel, padding: PaddingValues, onMessage: (Stri
                 title = { Text("Borrar todos los datos") },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Se eliminarán los datos del contrato y todas las mediciones, repostajes, gastos y fotos: la app quedará vacía. No se puede deshacer; solo podrás recuperarlos restaurando la copia de seguridad.")
+                        Text("Se eliminarán los datos del contrato y todas las mediciones, ${vm.energia.cargasMin}, gastos y fotos: la app quedará vacía. No se puede deshacer; solo podrás recuperarlos restaurando la copia de seguridad.")
                         OutlinedTextField(texto, { texto = it }, label = { Text("Escribe BORRAR para confirmar") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     }
                 },

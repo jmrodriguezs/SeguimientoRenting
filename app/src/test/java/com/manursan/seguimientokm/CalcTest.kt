@@ -427,3 +427,49 @@ class EjeGraficoTest {
         assertEquals("500", com.manursan.seguimientokm.ui.etiquetaKm(500.0, 500.0))
     }
 }
+
+class VehiculoElectricoTest {
+    @Test fun textosSegunEnergia() {
+        val p = ContractParams.vacio().copy(combustibleId = FuelPrices.ELECTRICO)
+        val e = Energia.de(p)
+        assert(e.electrico)
+        assertEquals("kWh/100 km", e.consumo)
+        assertEquals("Recargas", e.cargas)
+        assertEquals("€/kWh", e.precioUnidad)
+        // Cualquier combustible líquido o gas sigue en litros
+        assertEquals("l/100 km", Energia.de(p.copy(combustibleId = "4")).consumo)
+        assertEquals("Electricidad (vehículo eléctrico)", FuelPrices.nombreCombustible(FuelPrices.ELECTRICO))
+    }
+
+    @Test fun electricidadNoEsUnCarburante() {
+        assert(FuelPrices.esElectrico(FuelPrices.ELECTRICO))
+        assert(!FuelPrices.esElectrico(FuelPrices.G95))
+        // Los datos de un vehículo eléctrico se guardan y recuperan igual que los de combustión
+        val d = SeedData.create().let { it.copy(params = it.params.copy(combustibleId = FuelPrices.ELECTRICO)) }
+        assertEquals(FuelPrices.ELECTRICO, Storage.fromJson(Storage.toJson(d)).params.combustibleId)
+    }
+
+    @Test fun tiqueDeRecarga() {
+        val d = TicketOcr.parse("""
+            IONITY · ESTACIÓN DE CARGA
+            FECHA 05/10/2026 19:42
+            ENERGÍA SUMINISTRADA: 42,318 KWH
+            PRECIO: 0,5900 €/KWH
+            TOTAL 24,97 EUR
+            IVA INCLUIDO
+        """.trimIndent(), electrico = true)
+        assertEquals(24.97, d.importe!!, 1e-9)
+        assertEquals(42.318, d.litros!!, 1e-9)
+        assertEquals(0.59, d.precioLitro!!, 1e-9)
+        assertEquals(java.time.LocalDate.of(2026, 10, 5), d.fecha)
+        assertEquals(listOf("fecha", "importe", "precio/kWh", "kWh"), d.campos(Energia.ELECTRICIDAD))
+    }
+
+    @Test fun recargaEnCasaConDosDecimales() {
+        // Recarga doméstica: precio con dos decimales y sin etiquetas
+        val d = TicketOcr.parse("RECARGA 30/09/26\n38,40 KWH x 0,16 €/KWH\nIMPORTE 6,14", electrico = true)
+        assertEquals(6.14, d.importe!!, 1e-9)
+        assertEquals(38.40, d.litros!!, 1e-9)
+        assertEquals(0.16, d.precioLitro!!, 1e-9)
+    }
+}

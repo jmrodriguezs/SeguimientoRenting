@@ -22,6 +22,7 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
   rellena los repostajes antiguos.
 - **Otros gastos** (peajes, parking, lavado, multas, mantenimiento, AdBlue): entran en el coste por km y en el coste de uso hasta hoy.
 - **Foto del cuentakilómetros** en cada medición (cámara o galería), reducida a 1600 px.
+- **Vehículos eléctricos**: eligiendo "Electricidad" como energía, la app trabaja en kWh (recargas, €/kWh, kWh/100 km) en todas las pantallas, el informe y el Excel; el precio de las recargas se anota a mano.
 - **Foto del tique de repostaje** con lectura automática (OCR de ML Kit en el dispositivo, sin enviar la imagen): rellena fecha, importe, precio/litro y litros para revisarlos antes de guardar.
 - **Configurar paso a paso**: asistente de seis pasos para dar de alta el contrato en el primer arranque (o tras borrar los datos); la app se abre en Ajustes mientras no haya contrato. Obligatorios: inicio, plazo, km/año y cuota con IVA.
 - **Recordatorios**: notificación mensual para anotar los km y aviso 30 días antes del ajuste anual.
@@ -48,6 +49,7 @@ El APK está firmado con la clave de depuración: sirve para uso personal, pero 
   - Completar precios de mercado (rellena el precio/litro de los repostajes que no lo tienen).
   - Guardar / restaurar copia de seguridad (ZIP con datos y fotos; también admite el JSON antiguo).
   - Aviso legal y fuentes: la app es independiente (no es de la DGT, el BOE ni ningún ministerio) y enlaza a las fuentes oficiales.
+  - Acerca de...: logotipo de JMRSoft y versión de la aplicación.
 
 ## Datos
 Se guardan en el almacenamiento privado de la app. **Actualizar la app instalando un APK nuevo

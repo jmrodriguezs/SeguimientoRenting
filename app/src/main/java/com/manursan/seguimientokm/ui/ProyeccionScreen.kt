@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.manursan.seguimientokm.Fmt
+import com.manursan.seguimientokm.Energia
 import com.manursan.seguimientokm.KmRow
 import com.manursan.seguimientokm.MainViewModel
 import com.manursan.seguimientokm.Resultado
@@ -49,6 +50,7 @@ import com.manursan.seguimientokm.Resultado
 fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
     val s = r.seguimiento
     val p = r.params
+    val e = Energia.de(p)
     val pos = positiveColor()
     val neg = negativeColor()
 
@@ -111,7 +113,7 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
                 Spacer(Modifier.height(8.dp))
                 StatRow("Ritmo aplicado", "${Fmt.dec(s.kmDiaProyeccion, 2)} km/día", emphasized = true, valueColor = accentText(Palette.purple))
                 StatRow("Ritmo teórico", "${Fmt.dec(s.kmDiaTeoricos, 2)} km/día")
-                StatRow("Combustible estimado", "${Fmt.eur(s.eurKmCombustible, 4)}/km", hint = "Media real hasta la última medida")
+                StatRow("${e.nombre} estimad${if (e.electrico) "a" else "o"}", "${Fmt.eur(s.eurKmCombustible, 4)}/km", hint = "Media real hasta la última medida")
                 ThinDivider()
                 StatRow("Km estimados a fin de contrato", Fmt.km(r.liquidacion.kmProyectados), emphasized = true,
                     valueColor = if (r.liquidacion.kmProyectados > p.kmContratados) neg else MaterialTheme.colorScheme.onSurface)
@@ -187,7 +189,7 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
                 Modifier.fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
                     .padding(horizontal = 12.dp).padding(top = 8.dp),
-            ) { ProjHeader() }
+            ) { ProjHeader(e.nombre) }
         }
         itemsIndexed(r.proyeccion, key = { _, row -> row.fecha.toString() }) { i, row ->
             val ultima = i == r.proyeccion.lastIndex
@@ -205,12 +207,12 @@ fun ProyeccionScreen(r: Resultado, vm: MainViewModel, padding: PaddingValues) {
 }
 
 @Composable
-private fun ProjHeader() {
+private fun ProjHeader(energia: String) {
     Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         HeaderCell("Fecha", 1.2f, TextAlign.Start)
         HeaderCell("Km proyectados", 1.3f)
         HeaderCell("Km teóricos", 1.3f)
-        HeaderCell("Combustible", 1.1f)
+        HeaderCell(energia, 1.1f)
     }
 }
 

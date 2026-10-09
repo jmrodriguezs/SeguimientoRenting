@@ -198,7 +198,7 @@ story += [P("Mientras no haya contrato, la pestaña Ajustes empieza con la tarje
                  ["3. Plazo y kilómetros", "Fecha de inicio, plazo en meses (la fecha de fin se calcula sola) y km al año."],
                  ["4. Cuotas", "Cuota mensual con IVA (obligatoria); la cuota sin IVA se calcula sola y la reparación de daños y el depósito son opcionales."],
                  ["5. Liquidación", "Abono por km no recorrido, cargo por km de exceso, umbrales y recargo. Opcional."],
-                 ["6. Combustible e IVA", "Combustible del vehículo, provincia, tipo de IVA y porcentaje de deducción."]],
+                 ["6. Combustible e IVA", "Combustible del vehículo (o electricidad), provincia, tipo de IVA y porcentaje de deducción."]],
                 [4.2*cm, 12.2*cm]),
           P("<b>Qué es obligatorio y qué no.</b> Solo hacen falta cuatro datos: la <b>fecha de inicio</b>, el <b>plazo</b> (o la fecha de fin), los <b>kilómetros al año</b> y la "
             "<b>cuota mensual con IVA</b>. El resto es opcional, con la consecuencia de que lo que dependa de un dato ausente no se calcula:"),
@@ -235,7 +235,8 @@ story += [P("Suma la cuota del renting prorrateada hasta la fecha, el combustibl
 story += H2("3.5 Consumo y precio de mercado")
 story += [P("Para calcular el consumo (l/100 km) hacen falta litros. Si anotas los litros del tique, se usan directamente. Si no, la aplicación los deduce "
             "dividiendo el importe entre el <b>precio por litro</b>, que puedes escribir a mano o tomar del <b>precio medio de mercado</b> del combustible "
-            "configurado en esa fecha y provincia (datos abiertos del Ministerio de Industria, con histórico diario).")]
+            "configurado en esa fecha y provincia (datos abiertos del Ministerio de Industria, con histórico diario). "
+            "En un vehículo eléctrico todo funciona igual pero en <b>kWh</b>: consumo en kWh/100 km y precio por kWh (apartado 7.5).")]
 
 # ---------- 4. Navegación ----------
 story += H1("4. Navegación general")
@@ -321,6 +322,17 @@ story += [P("Gastos del coche que no forman parte del contrato: <b>peaje, aparca
             "Entran en el coste por kilómetro y en el coste de uso hasta hoy, pero no en el coste del contrato ni en la liquidación."),
           figrow([("23_gastos_lista", "Otros gastos"), ("24_gasto_nuevo", "Nuevo gasto con categoría")])]
 
+story += H2("7.5 Vehículos eléctricos")
+story += [P("Si tu coche es eléctrico, elige <b>Electricidad (vehículo eléctrico)</b> en <i>Ajustes → Tipo de energía</i> (o en el último paso del asistente). "
+            "A partir de ese momento la aplicación trabaja en <b>kWh</b>:"),
+          bullets(["La pestaña pasa a llamarse <b>Recargas</b>, con el icono de punto de carga, y cada recarga se anota con su importe, los <b>kWh</b> cargados y el <b>precio por kWh</b>.",
+                   "El consumo se muestra en <b>kWh/100 km</b>, y la tarjeta del Resumen, el coste por kilómetro, la proyección, el informe PDF y la exportación a Excel hablan de electricidad.",
+                   "No existe un precio oficial de mercado para las recargas, así que el precio se anota siempre a mano (en casa suele rondar 0,10–0,20 €/kWh y en puntos de carga rápida, 0,40–0,70 €/kWh). "
+                   "La opción <i>Completar precios de mercado</i> del menú desaparece.",
+                   "La <b>foto del tique</b> también funciona con los justificantes de recarga: la aplicación busca los kWh, el precio por kWh, el importe y la fecha.",
+                   "Los cálculos de kilómetros, liquidación y coste del contrato no cambian. Puedes volver a un combustible cuando quieras: los datos se conservan y solo cambia cómo se muestran."]),
+          figrow([("06_resumen_electrico", "Resumen de un eléctrico"), ("26_recargas_lista", "Lista de recargas"), ("27_recarga_nueva", "Nueva recarga en kWh")])]
+
 # ---------- 8. Proyección ----------
 story += H1("8. Pestaña Proyección")
 story += H2("8.1 Escenario")
@@ -374,9 +386,10 @@ story += [P("Android puede guardar una copia de los datos de las aplicaciones en
 story += H2("9.5 Recordatorios")
 story += [P("<b>Anotar los kilómetros cada mes</b>: notificación el día del mes que elijas (1–28) a las 10:00, con la última medida y el margen diario. "
             "<b>Aviso previo al ajuste anual</b>: notificación 30 días antes de cada aniversario del contrato con la previsión de km. Ambos piden el permiso de notificaciones la primera vez y sobreviven al reinicio del dispositivo.")]
-story += H2("9.6 Precio de mercado")
-story += [P("<b>Combustible</b> de tu vehículo (gasolinas 95 y 98 en todas sus variantes, gasóleo A y Premium, diésel y gasolina renovables, biodiésel, bioetanol, GLP, GNC, GNL e hidrógeno) y <b>provincia</b> donde sueles repostar (o <i>Toda España</i>). Ambos se usan para obtener el precio medio de mercado. Por defecto es Gasolina 95 E5; elegir tu provincia hace la consulta más rápida y más representativa de lo que pagas. Para GNC, GNL e hidrógeno el precio publicado es por kilogramo."),
-          figrow([("45_ajustes_mercado", "Combustible y provincia para el precio de mercado")], w=7*cm)]
+story += H2("9.6 Precio de mercado y tipo de energía")
+story += [P("<b>Combustible</b> de tu vehículo (gasolinas 95 y 98 en todas sus variantes, gasóleo A y Premium, diésel y gasolina renovables, biodiésel, bioetanol, GLP, GNC, GNL, hidrógeno o <b>electricidad</b> si es eléctrico) y <b>provincia</b> donde sueles repostar (o <i>Toda España</i>). Ambos se usan para obtener el precio medio de mercado. Por defecto es Gasolina 95 E5; elegir tu provincia hace la consulta más rápida y más representativa de lo que pagas. Para GNC, GNL e hidrógeno el precio publicado es por kilogramo."),
+          P("Con <i>Electricidad</i> la tarjeta pasa a llamarse <b>Tipo de energía</b> y desaparece la provincia, porque no hay precio de mercado para las recargas (apartado 7.5)."),
+          figrow([("45_ajustes_mercado", "Combustible y provincia"), ("45_ajustes_electrico", "Vehículo eléctrico")])]
 story += H2("9.7 Contrato, cuotas, liquidación e IVA")
 story += [P("Aquí se introducen los parámetros que alimentan todos los cálculos. Se guardan al pulsar <b>Guardar</b>; <b>Descartar cambios</b> vuelve a los valores guardados. "
             "Solo son obligatorios el <b>inicio</b>, el <b>plazo</b> (o la fecha de fin), los <b>km/año</b> y la <b>cuota con IVA</b>; los campos marcados como <i>opc.</i> pueden dejarse vacíos, "
@@ -408,7 +421,7 @@ story += H2("10.2 Exportar a Excel (.xlsx)")
 story += [P("Crea un libro Excel con la misma disposición que la hoja de seguimiento original: tabla de kilómetros (fecha, reales, teóricos, desviación, km/día, gasolina, coste/km, desviación %), "
             "repostajes, parámetros del contrato y bloques de seguimiento, liquidación, coste total e IVA. Las celdas llevan <b>fórmulas</b>, no solo valores, de modo que puedes cambiar un parámetro en Excel y ver el efecto.")]
 story += H2("10.3 Completar precios de mercado")
-story += [P("Recorre los repostajes sin precio por litro y les asigna el precio medio de mercado de su fecha (según la provincia configurada). Muestra el progreso en pantalla y, al terminar, cuántos se han completado.")]
+story += [P("Solo para vehículos de combustión. Recorre los repostajes sin precio por litro y les asigna el precio medio de mercado de su fecha (según la provincia configurada). Muestra el progreso en pantalla y, al terminar, cuántos se han completado.")]
 story += H2("10.4 Copia de seguridad y restauración")
 story += [P("<b>Guardar copia de seguridad</b> crea un fichero ZIP con nombre <i>seguimiento_renting_AAAA-MM-DD_HHMM.zip</i> que contiene el contrato, todas las mediciones, repostajes, gastos y las fotos. "
             "Elige dónde guardarlo (Descargas, Drive…). <b>Restaurar copia de seguridad</b> abre el selector de archivos; al elegir el ZIP se sustituyen los datos actuales por los de la copia. "
@@ -419,6 +432,9 @@ story += [P("Muestra un aviso que aclara que Seguimiento Renting es una aplicaci
             "y enlaza a las fuentes oficiales de las que toma los datos: el Tablón Edictal Único del BOE, la sede electrónica de la DGT y el Geoportal de Gasolineras del Ministerio. "
             "El mismo aviso aparece, en versión corta, en las tarjetas de <i>Multas</i> y <i>Precio de mercado</i> de Ajustes."),
           figrow([("51_aviso_legal", "Aviso legal y fuentes oficiales")], w=7*cm)]
+story += H2("10.6 Acerca de...")
+story += [P("Última opción del menú. Muestra el logotipo de <b>JMRSoft</b>, desarrolladora de la aplicación, y la versión instalada."),
+          figrow([("52_acerca_de", "Acerca de...")], w=7*cm)]
 
 # ---------- 11. Widget y notificaciones ----------
 story += H1("11. Widget y notificaciones")

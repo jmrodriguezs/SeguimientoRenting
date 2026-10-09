@@ -30,15 +30,18 @@ object TicketOcr {
     ) {
         val vacio: Boolean get() = importe == null && litros == null && precioLitro == null && fecha == null
         /** Campos reconocidos, en el orden del formulario. */
-        val campos: List<String> get() = listOfNotNull(
-            fecha?.let { "fecha" }, importe?.let { "importe" }, precioLitro?.let { "precio/l" }, litros?.let { "litros" })
+        val campos: List<String> get() = campos(Energia.COMBUSTIBLE)
+
+        fun campos(e: Energia): List<String> = listOfNotNull(
+            fecha?.let { "fecha" }, importe?.let { "importe" },
+            precioLitro?.let { if (e.electrico) "precio/kWh" else "precio/l" }, litros?.let { if (e.electrico) "kWh" else "litros" })
     }
 
     /** OCR sobre una foto ya guardada por [Photos] y extracción de los datos. */
-    suspend fun leer(context: Context, file: File): Result<Datos> = withContext(Dispatchers.IO) {
+    suspend fun leer(context: Context, file: File, electrico: Boolean = false): Result<Datos> = withContext(Dispatchers.IO) {
         runCatching {
             val bmp = BitmapFactory.decodeFile(file.path) ?: error("No se pudo leer la foto")
-            parse(reconocer(context, bmp))
+            parse(reconocer(context, bmp), electrico)
         }
     }
 
@@ -75,16 +78,18 @@ object TicketOcr {
 
     // ---- Extracción (pura, sin Android; se prueba en los tests unitarios) ----
 
-    private val NUM = Regex("""(?<![\d,.])(\d{1,4})[,.](\d{2,3})(?![\d])""")
+    private val NUM = Regex("""(?<![\d,.])(\d{1,4})[,.](\d{2,4})(?![\d])""")
     private val FECHA = Regex("""(?<!\d)(\d{1,2})\s?[/\-.]\s?(\d{1,2})\s?[/\-.]\s?(\d{2}|\d{4})(?!\d)""")
     private val PRECIO_KW = listOf("€/L", "EUR/L", "E/L", "€/LT", "PRECIO", "PVP", "P.U", "P/L", "PREU", "PREZIO", "UNIT")
     private val LITROS_KW = listOf("LITRO", "LTS", "LTR", "VOLUM", "CANTIDAD", "CANT.", "QTY", "LIT.")
     private val IMPORTE_KW = listOf("TOTAL", "IMPORTE", "A PAGAR", "TARJETA", "EFECTIVO", "VENTA", "EUR", "€", "PAGO")
+    private val PRECIO_KW_ELEC = listOf("€/KWH", "EUR/KWH", "E/KWH", "/KWH", "PRECIO", "PVP", "P.U", "UNIT", "TARIFA")
+    private val ENERGIA_KW = listOf("KWH", "KW H", "ENERGIA", "ENERGÍA", "CARGAD", "SUMINISTR", "CONSUMO")
     private val EXCLUIR_KW = listOf("IVA", "BASE", "DESCUENTO", "DTO", "PUNTOS", "SALDO", "CIF", "NIF", "TEL", "KM", "HORA", "CAMBIO")
 
     private data class Num(val valor: Double, val decimales: Int, val linea: Int, val pos: Int)
 
-    fun parse(texto: String): Datos {
+    fun parse(texto: String, electrico: Boolean = false): Datos {
         val lineas = texto.uppercase().replace('|', 'I').lines().map { it.trim() }
         val nums = mutableListOf<Num>()
         lineas.forEachIndexed { i, l ->
@@ -95,9 +100,12 @@ object TicketOcr {
         }
         fun lineaTiene(i: Int, kws: List<String>) = kws.any { it in lineas[i] }
         fun cercaTiene(i: Int, kws: List<String>) = (maxOf(0, i - 1)..minOf(lineas.lastIndex, i + 1)).any { lineaTiene(it, kws) }
-        fun esPrecio(n: Num) = n.decimales == 3 && n.valor in 0.5..3.5
-        fun esLitros(n: Num) = n.valor in 1.0..250.0
-        fun esImporte(n: Num) = n.decimales == 2 && n.valor in 1.0..600.0
+        // Combustible: precio con 3 decimales entre 0,5 y 3,5 €/l. Electricidad: 2 a 4 decimales entre 0,05 y 1,5 €/kWh.
+        fun esPrecio(n: Num) = if (electrico) n.decimales in 2..4 && n.valor in 0.05..1.5 else n.decimales == 3 && n.valor in 0.5..3.5
+        fun esLitros(n: Num) = if (electrico) n.valor in 0.5..200.0 else n.valor in 1.0..250.0
+        fun esImporte(n: Num) = n.decimales == 2 && (if (electrico) n.valor in 0.3..400.0 else n.valor in 1.0..600.0)
+        val precioKw = if (electrico) PRECIO_KW_ELEC else PRECIO_KW
+        val cantidadKw = if (electrico) ENERGIA_KW else LITROS_KW
 
         var precio: Double? = null; var litros: Double? = null; var importe: Double? = null
 
@@ -114,10 +122,10 @@ object TicketOcr {
 
         // 2) Por etiquetas, para lo que falte
         if (precio == null) precio = nums.filter(::esPrecio).let { c ->
-            c.firstOrNull { lineaTiene(it.linea, PRECIO_KW) } ?: c.firstOrNull { cercaTiene(it.linea, PRECIO_KW) } ?: c.singleOrNull()
+            c.firstOrNull { lineaTiene(it.linea, precioKw) } ?: c.firstOrNull { cercaTiene(it.linea, precioKw) } ?: c.singleOrNull()
         }?.valor
         if (litros == null) litros = nums.filter { esLitros(it) && it.valor != precio && !lineaTiene(it.linea, EXCLUIR_KW) }
-            .let { c -> c.firstOrNull { lineaTiene(it.linea, LITROS_KW) } ?: c.firstOrNull { cercaTiene(it.linea, LITROS_KW) } }?.valor
+            .let { c -> c.firstOrNull { lineaTiene(it.linea, cantidadKw) && !lineaTiene(it.linea, listOf("€/KWH", "EUR/KWH", "/KWH")) } ?: c.firstOrNull { cercaTiene(it.linea, cantidadKw) } }?.valor
         if (importe == null) {
             val cand = nums.filter { esImporte(it) && it.valor != litros && !lineaTiene(it.linea, EXCLUIR_KW) }
             importe = (cand.firstOrNull { "TOTAL" in lineas[it.linea] }

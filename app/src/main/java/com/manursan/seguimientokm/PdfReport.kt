@@ -79,6 +79,7 @@ object PdfReport {
         }
 
         fun draw(r: Resultado, hoy: LocalDate) {
+            val e = Energia.de(r.params)
             val p0 = r.params
             val s = r.seguimiento
             val ultima = r.reales.lastOrNull()
@@ -110,7 +111,7 @@ object PdfReport {
                     if (ultima != null && ultima.desviacion > 0) neg else pos,
                 ),
                 Kpi("RITMO", "${Fmt.dec(s.kmDiaRealAcumulado, 1)} km/día", "contrato ${Fmt.dec(s.kmDiaTeoricos, 1)} · 6 meses ${s.kmDiaReciente?.let { Fmt.dec(it, 1) } ?: "—"}", VERDE),
-                Kpi("COSTE / KM", Fmt.eur(r.costeKm.total, 4), "renting ${Fmt.dec(r.costeKm.renting, 3)} · comb. ${Fmt.dec(r.costeKm.combustible, 3)} · otros ${Fmt.dec(r.costeKm.otros, 3)}", NARANJA),
+                Kpi("COSTE / KM", Fmt.eur(r.costeKm.total, 4), "renting ${Fmt.dec(r.costeKm.renting, 3)} · ${if (e.electrico) "elect." else "comb."} ${Fmt.dec(r.costeKm.combustible, 3)} · otros ${Fmt.dec(r.costeKm.otros, 3)}", NARANJA),
             )
             kpis.forEachIndexed { i, k ->
                 val x = M + i * (kw + gap)
@@ -175,21 +176,21 @@ object PdfReport {
             txt(tramo, xR + 8f, yy, 7.5f, color = GRIS); yy += 14f
             line(xR + 8f, yy - 9f, xR + cw - 8f, yy - 9f)
             row("Escenario", when (p0.modoProyeccion) { ModoProyeccion.Acumulada -> "media acumulada"; ModoProyeccion.Reciente -> "ritmo últimos 6 meses"; ModoProyeccion.Manual -> "manual" }, xR + 8f, yy, iw); yy += 12f
-            row("Combustible estimado", "${Fmt.dec(s.eurKmCombustible, 4)} €/km", xR + 8f, yy, iw)
+            row("${e.nombre} estimad${if (e.electrico) "a" else "o"}", "${Fmt.dec(s.eurKmCombustible, 4)} €/km", xR + 8f, yy, iw)
             y += bh1 + 10f
 
             // ---- Dos columnas: combustible+gastos / coste ----
             val bh2 = 150f
             box(xL, y, xL + cw, y + bh2); box(xR, y, xR + cw, y + bh2)
             yy = y + 14f
-            txt("COMBUSTIBLE Y OTROS GASTOS", xL + 8f, yy, 7.5f, bold = true, color = NARANJA); yy += 14f
+            txt("${e.nombre.uppercase()} Y OTROS GASTOS", xL + 8f, yy, 7.5f, bold = true, color = NARANJA); yy += 14f
             val ultimoRep = r.repostajes.lastOrNull()
-            row("Total repostado", Fmt.eur(ultimoRep?.acumulado ?: 0.0), xL + 8f, yy, iw, bold = true); yy += 12f
-            row("Repostajes", if (ultimoRep != null) "${r.repostajes.size} · último ${Fmt.date(ultimoRep.refuel.fecha)}" else "—", xL + 8f, yy, iw); yy += 12f
+            row(if (e.electrico) "Total en recargas" else "Total repostado", Fmt.eur(ultimoRep?.acumulado ?: 0.0), xL + 8f, yy, iw, bold = true); yy += 12f
+            row(e.cargas, if (ultimoRep != null) "${r.repostajes.size} · ${if (e.electrico) "última" else "último"} ${Fmt.date(ultimoRep.refuel.fecha)}" else "—", xL + 8f, yy, iw); yy += 12f
             val cons = r.consumo
-            row("Consumo", cons.litros100km?.let { "${Fmt.dec(it, 2)} l/100 km" + if (cons.estimado) " (estimado)" else "" } ?: "sin datos de litros", xL + 8f, yy, iw); yy += 12f
-            row("Precio medio · litros", cons.precioMedioLitro?.let { "${Fmt.dec(it, 3)} €/l · ${Fmt.dec(cons.litrosConocidos, 0)} l" } ?: "—", xL + 8f, yy, iw); yy += 12f
-            row("Combustible por km", "${Fmt.dec(s.eurKmCombustible, 4)} €/km", xL + 8f, yy, iw); yy += 14f
+            row("Consumo", cons.litros100km?.let { "${Fmt.dec(it, 2)} ${e.consumo}" + if (cons.estimado) " (estimado)" else "" } ?: "sin datos de ${e.cantidadEnFrase}", xL + 8f, yy, iw); yy += 12f
+            row("Precio medio · ${e.cantidadEnFrase}", cons.precioMedioLitro?.let { "${Fmt.dec(it, 3)} ${e.precioUnidad} · ${Fmt.dec(cons.litrosConocidos, 0)} ${e.unidad}" } ?: "—", xL + 8f, yy, iw); yy += 12f
+            row("${e.nombre} por km", "${Fmt.dec(s.eurKmCombustible, 4)} €/km", xL + 8f, yy, iw); yy += 14f
             line(xL + 8f, yy - 9f, xL + cw - 8f, yy - 9f)
             val g = r.gastos
             val cats = g.porCategoria.entries.sortedByDescending { it.value }.take(3).joinToString(" · ") { "${it.key.label} ${Fmt.dec(it.value, 0)}" }
@@ -202,7 +203,7 @@ object PdfReport {
             txt("COSTE DEL CONTRATO (proyección)", xR + 8f, yy, 7.5f, bold = true, color = 0xFFC2185B.toInt()); yy += 14f
             row("Cuotas (${p0.meses} × ${Fmt.eur(p0.cuotaMensual)})", Fmt.eur(ct.cuotas), xR + 8f, yy, iw); yy += 12f
             row("Cuota irregular inicial", Fmt.eur(ct.cuotaIrregular), xR + 8f, yy, iw); yy += 12f
-            row("Combustible proyectado", Fmt.eur(ct.combustibleProyectado), xR + 8f, yy, iw); yy += 12f
+            row("${e.nombre} proyectad${if (e.electrico) "a" else "o"}", Fmt.eur(ct.combustibleProyectado), xR + 8f, yy, iw); yy += 12f
             row(if (ct.abono >= 0) "Abono km no recorridos" else "Cargo km de exceso", (if (ct.abono >= 0) "−" else "+") + Fmt.eur(abs(ct.abono)), xR + 8f, yy, iw); yy += 12f
             line(xR + 8f, yy - 4f, xR + cw - 8f, yy - 4f, LINEA)
             yy += 6f
@@ -220,7 +221,7 @@ object PdfReport {
                 box(M, y, W - M, y + th)
                 yy = y + 14f
                 txt("ÚLTIMAS MEDICIONES", M + 8f, yy, 7.5f, bold = true, color = VERDE); yy += 13f
-                val cols = listOf("Fecha", "Día", "Km reales", "Km teóricos", "Desviación", "Km/día", "Combustible acum.", "Coste/km")
+                val cols = listOf("Fecha", "Día", "Km reales", "Km teóricos", "Desviación", "Km/día", "${e.nombre} acum.", "Coste/km")
                 val cx = FloatArray(cols.size) { i -> M + 8f + i * ((W - 2 * M - 16f) / cols.size) }
                 val cwid = (W - 2 * M - 16f) / cols.size
                 cols.forEachIndexed { i, h -> txt(h, if (i == 0) cx[i] else cx[i] + cwid - 6f, yy, 7f, bold = true, color = GRIS, align = if (i == 0) Paint.Align.LEFT else Paint.Align.RIGHT) }
@@ -243,7 +244,8 @@ object PdfReport {
 
             // ---- Pie ----
             txt(
-                "Generado por Seguimiento Renting · Teóricos = km contratados repartidos linealmente en los días de contrato · Precio de mercado: datos abiertos del Ministerio de Industria (${FuelPrices.nombreCombustible(r.params.combustibleId)})",
+                "Generado por Seguimiento Renting · Teóricos = km contratados repartidos linealmente en los días de contrato" +
+                    if (e.electrico) " · Vehículo eléctrico: consumo en kWh" else " · Precio de mercado: datos abiertos del Ministerio de Industria (${FuelPrices.nombreCombustible(r.params.combustibleId)})",
                 M, H - M + 10f, 6.5f, color = GRIS,
             )
         }
@@ -255,16 +257,16 @@ object PdfReport {
             val p0 = r.params
             val left = l + 28f; val right = rt - 4f; val top = t + 4f; val bottom = b - 12f
             val totalDias = ChronoUnit.DAYS.between(p0.inicio, p0.fin).coerceAtLeast(1)
-            val maxKm = (maxOf(p0.kmContratados, r.liquidacion.kmProyectados, r.seguimiento.kmUltima) * 1.08).coerceAtLeast(1000.0)
+            val maxBruto = maxOf(p0.kmContratados, r.liquidacion.kmProyectados, r.seguimiento.kmUltima)
+            val maxKm = (if (maxBruto.isFinite()) maxBruto * 1.08 else 1000.0).coerceIn(1000.0, 5_000_000.0)
             fun x(d: LocalDate) = left + (right - left) * ChronoUnit.DAYS.between(p0.inicio, d).toFloat() / totalDias
             fun y(km: Double) = bottom - (bottom - top) * (km / maxKm).toFloat()
 
-            val paso = if (maxKm > 40000) 10000.0 else 5000.0
-            var k = 0.0
-            while (k <= maxKm) {
+            // Mismo criterio que la gráfica de la app: entre 4 y 6 marcas, sea cual sea la escala
+            val paso = com.manursan.seguimientokm.ui.pasoRedondo(maxKm)
+            generateSequence(0.0) { it + paso }.takeWhile { it <= maxKm + paso * 0.01 }.take(12).forEach { k ->
                 line(left, y(k), right, y(k))
-                txt(Fmt.int(k / 1000) + "k", left - 3f, y(k) + 2.5f, 6.5f, color = GRIS, align = Paint.Align.RIGHT)
-                k += paso
+                txt(com.manursan.seguimientokm.ui.etiquetaKm(k, paso), left - 3f, y(k) + 2.5f, 6.5f, color = GRIS, align = Paint.Align.RIGHT)
             }
             var year = p0.inicio.year
             while (year <= p0.fin.year) {
@@ -299,7 +301,7 @@ object PdfReport {
             // Leyenda
             var lx = left + 6f
             val ly = top + 8f
-            listOf("Reales" to VERDE, "Teóricos" to GRIS, "Proyección" to MORADO, "Umbrales 27k / 30k" to ROJO).forEach { (name, col) ->
+            listOf("Reales" to VERDE, "Teóricos" to GRIS, "Proyección" to MORADO, "Umbrales ${com.manursan.seguimientokm.ui.etiquetaKm(r.liquidacion.umbralAbono, 1000.0)} / ${com.manursan.seguimientokm.ui.etiquetaKm(r.liquidacion.umbralCargo, 1000.0)}" to ROJO).forEach { (name, col) ->
                 p.style = Paint.Style.FILL; p.color = col; c.drawCircle(lx, ly - 2.5f, 2.5f, p)
                 txt(name, lx + 5f, ly, 6.5f, color = GRIS)
                 lx += 12f + name.length * 3.6f

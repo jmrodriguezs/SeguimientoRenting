@@ -232,12 +232,12 @@ fun AsistenteContratoDialog(
                             supporting = "1 = sin recargo; 1,25 = un 25 % más caro")
                     }
                     else -> {
-                        Ayuda("Combustible y provincia para consultar el precio medio de mercado, e IVA para el coste del contrato.")
+                        Ayuda("Combustible (o Electricidad si el vehículo es eléctrico) y provincia para consultar el precio medio de mercado, e IVA para el coste del contrato.")
                         var combOpen by remember { mutableStateOf(false) }
                         ExposedDropdownMenuBox(expanded = combOpen, onExpandedChange = { combOpen = it }) {
                             OutlinedTextField(
                                 value = FuelPrices.nombreCombustible(combustibleId), onValueChange = {}, readOnly = true,
-                                label = { Text("Combustible") },
+                                label = { Text("Combustible o energía") },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = combOpen) },
                                 modifier = Modifier.fillMaxWidth().menuAnchor(),
                             )

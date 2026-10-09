@@ -16,6 +16,10 @@ import java.time.format.DateTimeFormatter
 object FuelPrices {
     private const val BASE = "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes"
     const val G95 = "1"
+    /** Vehículo eléctrico: la "carga" se mide en kWh y no hay precio oficial de mercado. */
+    const val ELECTRICO = "ELEC"
+
+    fun esElectrico(id: String?): Boolean = id == ELECTRICO
 
     /** Carburantes de automoción (IDProducto del Ministerio); quedan fuera los de calefacción, agrícolas, marítimos y de aviación. */
     val COMBUSTIBLES: List<Pair<String, String>> = listOf(
@@ -26,6 +30,7 @@ object FuelPrices {
         "8" to "Biodiésel", "16" to "Bioetanol",
         "17" to "GLP (Autogas)", "18" to "Gas natural comprimido (GNC)", "19" to "Gas natural licuado (GNL)",
         "22" to "Hidrógeno",
+        ELECTRICO to "Electricidad (vehículo eléctrico)",
     )
 
     fun nombreCombustible(id: String): String = COMBUSTIBLES.firstOrNull { it.first == id }?.second ?: "Gasolina 95 E5"
@@ -51,6 +56,8 @@ object FuelPrices {
 
     /** Precio medio €/l en esa fecha (y provincia). Consulta la red si no está en caché. */
     suspend fun precioMedio(context: Context, fecha: LocalDate, provinciaId: String?, productoId: String = G95): Result<Double> {
+        // No existe una fuente oficial con el precio medio de las recargas eléctricas
+        if (esElectrico(productoId)) return Result.failure(IllegalStateException("no hay precio de mercado para la electricidad"))
         val key = if (productoId == G95) "${fecha}|${provinciaId ?: "ES"}" else "${fecha}|${provinciaId ?: "ES"}|$productoId"
         cache(context).getFloat(key, -1f).takeIf { it > 0 }?.let { return Result.success(it.toDouble()) }
         return withContext(Dispatchers.IO) {

@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.EvStation
 import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.LinearProgressIndicator
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.manursan.seguimientokm.Energia
 import com.manursan.seguimientokm.Fmt
 import com.manursan.seguimientokm.Resultado
 
@@ -41,6 +43,7 @@ import com.manursan.seguimientokm.Resultado
 fun ResumenScreen(r: Resultado, padding: PaddingValues) {
     val s = r.seguimiento
     val p = r.params
+    val e = Energia.de(p)
     val ultima = r.reales.lastOrNull()
     val pos = positiveColor()
     val neg = negativeColor()
@@ -79,7 +82,7 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         MiniStat("Km/día real", Fmt.dec(s.kmDiaRealAcumulado, 2), Modifier.weight(1f))
                         MiniStat("Km/día contrato", Fmt.dec(s.kmDiaTeoricos, 2), Modifier.weight(1f))
-                        r.consumo.litros100km?.let { MiniStat("Consumo", "${Fmt.dec(it, 2)} l/100", Modifier.weight(1f), valueColor = accentText(Palette.orange)) }
+                        r.consumo.litros100km?.let { MiniStat("Consumo", "${Fmt.dec(it, 2)} ${e.consumo.removeSuffix(" km")}", Modifier.weight(1f), valueColor = accentText(Palette.orange)) }
                     }
                 } else {
                     Text("Todavía no hay mediciones. Añade la primera en la pestaña Kilómetros.")
@@ -120,37 +123,39 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
         }
 
         item {
-            SectionCard(title = "Combustible", icon = Icons.Default.LocalGasStation, accent = Palette.orange) {
+            SectionCard(title = e.nombre, icon = if (e.electrico) Icons.Default.EvStation else Icons.Default.LocalGasStation, accent = Palette.orange) {
                 val ultimoRep = r.repostajes.lastOrNull()
                 val total = ultimoRep?.acumulado ?: 0.0
                 // Si hay repostajes posteriores a la última medida, se indica la parte que entra en los cálculos
                 val pendiente = total - s.combustibleAcumulado
                 StatRow(
-                    "Total repostado",
+                    if (e.electrico) "Total en recargas" else "Total repostado",
                     Fmt.eur(total),
                     emphasized = true,
-                    hint = if (ultimoRep == null) "Sin repostajes"
-                    else "${r.repostajes.size} repostajes, último ${Fmt.date(ultimoRep.refuel.fecha)}" +
+                    hint = if (ultimoRep == null) e.sinCargas
+                    else "${r.repostajes.size} ${e.cargasMin}, ${if (e.electrico) "última" else "último"} ${Fmt.date(ultimoRep.refuel.fecha)}" +
                         if (pendiente > 0.005) " · ${Fmt.eur(pendiente)} posteriores a la última medida" else "",
                 )
-                StatRow("Combustible por km", Fmt.eur(s.eurKmCombustible, 4), hint = "Sobre los ${Fmt.eur(s.combustibleAcumulado)} hasta la última medida")
+                StatRow("${e.nombre} por km", Fmt.eur(s.eurKmCombustible, 4), hint = "Sobre los ${Fmt.eur(s.combustibleAcumulado)} hasta la última medida")
                 ultimoRep?.costeDiario?.let { StatRow("Coste diario", Fmt.eur(it, 2)) }
                 val cons = r.consumo
                 if (cons.litros100km != null) {
                     ThinDivider()
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        MiniStat("Consumo", "${Fmt.dec(cons.litros100km, 2)} l/100 km", Modifier.weight(1.2f), valueColor = accentText(Palette.orange))
-                        MiniStat("Precio medio", "${Fmt.dec(cons.precioMedioLitro ?: 0.0, 3)} €/l", Modifier.weight(1f))
-                        MiniStat("Litros", Fmt.dec(cons.litrosConocidos, 1), Modifier.weight(0.8f))
+                        MiniStat("Consumo", "${Fmt.dec(cons.litros100km, 2)} ${e.consumo}", Modifier.weight(1.2f), valueColor = accentText(Palette.orange))
+                        MiniStat("Precio medio", "${Fmt.dec(cons.precioMedioLitro ?: 0.0, 3)} ${e.precioUnidad}", Modifier.weight(1f))
+                        MiniStat(e.cantidad, Fmt.dec(cons.litrosConocidos, 1), Modifier.weight(0.8f))
                     }
                     if (cons.estimado) {
                         Text(
-                            "${cons.repostajesSinLitros} repostajes sin litros ni precio: estimados con el precio medio. Usa \"Completar precios de mercado\" en el menú.",
+                            if (e.electrico) "${cons.repostajesSinLitros} recargas sin kWh ni precio: estimadas con el precio medio."
+                            else "${cons.repostajesSinLitros} repostajes sin litros ni precio: estimados con el precio medio. Usa \"Completar precios de mercado\" en el menú.",
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 } else {
-                    Text("Anota litros o precio/litro en los repostajes (o usa \"Completar precios de mercado\" en el menú) para ver el consumo.",
+                    Text(if (e.electrico) "Anota los kWh o el precio por kWh en las recargas para ver el consumo."
+                        else "Anota litros o precio/litro en los repostajes (o usa \"Completar precios de mercado\" en el menú) para ver el consumo.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -160,7 +165,7 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
             val ck = r.costeKm
             SectionCard(
                 title = "Coste por kilómetro",
-                subtitle = "Renting + combustible + otros gastos, entre los km recorridos",
+                subtitle = "Renting + ${e.nombre.lowercase()} + otros gastos, entre los km recorridos",
                 icon = Icons.Default.Calculate,
                 accent = Palette.amber,
             ) {
@@ -169,7 +174,7 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                 } else if (ultima != null && ultima.km > 0) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         MiniStat("Renting", Fmt.eur(ck.renting, 4), Modifier.weight(1f))
-                        MiniStat("Combustible", Fmt.eur(ck.combustible, 4), Modifier.weight(1f), valueColor = accentText(Palette.orange))
+                        MiniStat(e.nombre, Fmt.eur(ck.combustible, 4), Modifier.weight(1f), valueColor = accentText(Palette.orange))
                         MiniStat("Otros", Fmt.eur(ck.otros, 4), Modifier.weight(1f))
                         MiniStat("Total", Fmt.eur(ck.total, 4), Modifier.weight(1f), valueColor = accentText(Palette.amber))
                     }
@@ -262,7 +267,7 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                 accent = Palette.amber,
             ) {
                 if (g.lista.isEmpty()) {
-                    Text("Sin gastos anotados. Añádelos en la pestaña Repostajes → Otros gastos.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Sin gastos anotados. Añádelos en la pestaña ${e.cargas} → Otros gastos.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     g.porCategoria.entries.sortedByDescending { it.value }.forEach { (cat, total) -> StatRow(cat.label, Fmt.eur(total)) }
                     ThinDivider()
@@ -270,17 +275,17 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                 }
                 ThinDivider()
                 StatRow("Coste de uso hasta hoy", Fmt.eur(g.costeUsoHastaHoy), emphasized = true,
-                    hint = "Cuotas devengadas ${Fmt.eur(g.cuotasDevengadas)} + combustible + otros gastos")
+                    hint = "Cuotas devengadas ${Fmt.eur(g.cuotasDevengadas)} + ${e.nombre.lowercase()} + otros gastos")
             }
         }
 
         item {
             val c = r.coste
             SectionCard(title = "Coste total del contrato", subtitle = "Proyección a ${Fmt.date(p.fin)}", icon = Icons.Default.Paid, accent = Palette.pink) {
-                if (!p.tieneCostes) FaltaDato("Sin cuota mensual solo se suman el combustible y los otros gastos.")
+                if (!p.tieneCostes) FaltaDato("Sin cuota mensual solo se suman ${if (e.electrico) "la electricidad" else "el combustible"} y los otros gastos.")
                 StatRow("Cuotas (${p.meses} × ${Fmt.eur(p.cuotaMensual)})", Fmt.eur(c.cuotas))
                 StatRow("Cuota irregular inicial", Fmt.eur(c.cuotaIrregular), hint = "Prorrateo desde ${Fmt.date(p.inicio)}")
-                StatRow("Combustible proyectado", Fmt.eur(c.combustibleProyectado))
+                StatRow("${e.nombre} proyectad${if (e.electrico) "a" else "o"}", Fmt.eur(c.combustibleProyectado))
                 StatRow(
                     if (c.abono >= 0) "Abono km no recorridos" else "Cargo km de exceso",
                     (if (c.abono >= 0) "−" else "+") + Fmt.eur(kotlin.math.abs(c.abono)),
@@ -303,7 +308,7 @@ fun ResumenScreen(r: Resultado, padding: PaddingValues) {
                 StatRow("Base cuotas", Fmt.eur(c.baseCuotas))
                 StatRow("IVA cuotas", Fmt.eur(c.ivaCuotas))
                 StatRow("IVA cuota irregular", Fmt.eur(c.ivaCuotaIrregular))
-                StatRow("IVA combustible", Fmt.eur(c.ivaCombustible), hint = "Incluido en surtidor")
+                StatRow("IVA ${e.nombre.lowercase()}", Fmt.eur(c.ivaCombustible), hint = e.ivaIncluido)
                 ThinDivider()
                 StatRow("IVA total soportado", Fmt.eur(c.ivaTotal))
                 StatRow("IVA deducible", Fmt.eur(c.ivaDeducible))

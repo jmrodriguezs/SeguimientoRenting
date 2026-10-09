@@ -68,7 +68,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /** Resumen de lo que contiene esa copia, para poder decidir con criterio. */
     fun resumenRestaurada(): String? = runCatching {
         val d = Storage.fromJson(CopiaNube.ficheroEnEspera(ctx).readText())
-        "${d.measurements.size} mediciones · ${d.refuels.size} repostajes · ${d.expenses.size} gastos" +
+        "${d.measurements.size} mediciones · ${d.refuels.size} ${Energia.de(d.params).cargasMin} · ${d.expenses.size} gastos" +
             (if (d.params.configurado) " · contrato de ${Fmt.km(d.params.kmContratados)}" else " · sin contrato")
     }.getOrNull()
 
@@ -111,7 +111,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     suspend fun importPhoto(uri: Uri, prefijo: String = "km"): String? = withContext(Dispatchers.IO) { runCatching { Photos.import(ctx, uri, prefijo) }.getOrNull() }
 
     /** Lee el tique de repostaje de una foto ya importada (OCR en el dispositivo). */
-    suspend fun leerTique(foto: String): Result<TicketOcr.Datos> = TicketOcr.leer(ctx, Photos.file(ctx, foto))
+    suspend fun leerTique(foto: String): Result<TicketOcr.Datos> =
+        TicketOcr.leer(ctx, Photos.file(ctx, foto), FuelPrices.esElectrico(data.params.combustibleId))
+
+    /** Textos y unidades del tipo de vehículo configurado (combustión o eléctrico). */
+    val energia: Energia get() = Energia.de(data.params)
 
     // --- Repostajes ---
     fun addRefuel(fecha: LocalDate, importe: Double, nota: String, litros: Double?, precio: Double?, mercado: Boolean, foto: String? = null) =
@@ -136,6 +140,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Rellena con el precio de mercado los repostajes que no tienen precio/litro. Devuelve (hechos, fallos). */
     fun completarPreciosMercado(onDone: (Int, Int) -> Unit) {
+        if (FuelPrices.esElectrico(data.params.combustibleId)) { onDone(0, 0); return }
         val pendientes = data.refuels.filter { it.precioLitro == null }
         if (pendientes.isEmpty()) { onDone(0, 0); return }
         viewModelScope.launch {

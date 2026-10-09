@@ -179,4 +179,22 @@ class DeviceTest {
         lineas.forEachIndexed { i, l -> c.drawText(l, 40f, 80f + i * 52f, p) }
         return bmp
     }
+
+    /** Informe PDF de un vehículo eléctrico: textos en kWh y sin referencias al precio de carburantes. */
+    @Test fun informeVehiculoElectrico() {
+        val base = SeedData.create()
+        val data = base.copy(params = base.params.copy(combustibleId = FuelPrices.ELECTRICO))
+        val bytes = PdfReport.build(Calc.compute(data))
+        val dir = context.getExternalFilesDir(null)!!
+        val pdf = java.io.File(dir, "manual_informe_ev.pdf").apply { writeBytes(bytes) }
+        android.graphics.pdf.PdfRenderer(android.os.ParcelFileDescriptor.open(pdf, android.os.ParcelFileDescriptor.MODE_READ_ONLY)).use { ren ->
+            assertEquals(1, ren.pageCount)
+            ren.openPage(0).use { page ->
+                val bmp = Bitmap.createBitmap(page.width * 2, page.height * 2, Bitmap.Config.ARGB_8888)
+                bmp.eraseColor(android.graphics.Color.WHITE)
+                page.render(bmp, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                java.io.File(dir, "manual_informe_ev.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            }
+        }
+    }
 }

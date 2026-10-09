@@ -58,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.manursan.seguimientokm.Energia
 import com.manursan.seguimientokm.Fmt
 import com.manursan.seguimientokm.KmRow
 import com.manursan.seguimientokm.MainViewModel
@@ -104,7 +105,7 @@ fun KilometrosScreen(
             }
             items(rows, key = { it.id ?: it.fecha.toString() }) { row ->
                 val foto = vm.data.measurements.firstOrNull { it.id == row.id }?.foto
-                KmRowCard(row, pos, neg, foto, onPhoto = { verFoto = it }) {
+                KmRowCard(row, pos, neg, foto, Energia.de(vm.data.params).nombre, onPhoto = { verFoto = it }) {
                     onEdit(MeasurementEdit(row.id, row.fecha, row.km.toInt().toString(), row.nota, foto))
                 }
             }
@@ -130,7 +131,7 @@ fun KilometrosScreen(
 @Composable
 private fun KmRowCard(
     row: KmRow, pos: androidx.compose.ui.graphics.Color, neg: androidx.compose.ui.graphics.Color,
-    foto: String?, onPhoto: (String) -> Unit, onClick: () -> Unit,
+    foto: String?, energia: String, onPhoto: (String) -> Unit, onClick: () -> Unit,
 ) {
     val accent = Palette.green
     Card(
@@ -168,7 +169,7 @@ private fun KmRowCard(
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     MiniStat("Teóricos", Fmt.km(row.teoricos), Modifier.weight(1f))
-                    MiniStat("Combustible acum.", Fmt.eur(row.gastoGasolina), Modifier.weight(1f), valueColor = accentText(Palette.orange))
+                    MiniStat("$energia acum.", Fmt.eur(row.gastoGasolina), Modifier.weight(1f), valueColor = accentText(Palette.orange))
                     MiniStat("Coste/km", Fmt.eur(row.costeKmTotal, 4), Modifier.weight(1f))
                 }
                 if (row.nota.isNotBlank()) {
